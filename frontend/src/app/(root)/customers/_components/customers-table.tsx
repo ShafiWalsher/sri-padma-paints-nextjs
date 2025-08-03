@@ -2,7 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/shared/data-table";
-import { columns } from "../columns";
+import { useColumns } from "../customer-columns";
 import { customerServices } from "@/services/customer-service";
 
 export default function CustomerTable() {
@@ -10,6 +10,8 @@ export default function CustomerTable() {
     queryKey: ["customers"],
     queryFn: customerServices.fetchCustomers,
   });
+
+  const columns = useColumns();
 
   return (
     <DataTable

@@ -84,7 +84,7 @@ export function DataTable<TData, TValue>({
   );
 
   //   Column Visibility
-  const hiddenIds = ["actions", ...(initiallyHiddenColumns ?? [])];
+  const hiddenIds = [...(initiallyHiddenColumns ?? [])];
 
   const initialVisibility = columns.reduce<VisibilityState>((acc, col) => {
     // Hide the column if its id is 'actions'

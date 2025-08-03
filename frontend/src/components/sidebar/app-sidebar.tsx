@@ -3,18 +3,29 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import { useEffect } from "react";
-import { APP_NAME, APP_NAME_SHORT } from "@/constants";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { LayoutDashboard } from "lucide-react";
+import { APP_NAME, APP_NAME_SHORT } from "@/constants";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { open, setOpen } = useSidebar();
+
+  const pathname = usePathname();
 
   useEffect(() => {
     const isOpen =
@@ -52,12 +63,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         )}
       </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel className="sr-only">Menu</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                className={cn(
+                  "w-full hover:bg-sidebar-active/10 rounded-lg",
+                  pathname === "/" &&
+                    "bg-sidebar-active/90 hover:bg-sidebar-active/80 hover:text-white text-white font-medium"
+                )}
+              >
+                <Link href={"/"} className="flex items-center gap-2 w-full">
+                  <LayoutDashboard
+                    className={cn("size-5", pathname === "/" && "!text-white")}
+                  />
+                  <span>Dashboard</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Main Nav Menu */}
         <NavMain />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
-      <SidebarRail />
+      <SidebarRail className="hover:after:bg-black/10" />
     </Sidebar>
   );
 }

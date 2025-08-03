@@ -8,5 +8,5 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 // Retrieve all products using the updated function GetAllA
-$products = GetAllA("SELECT * FROM products", $con);
-respond(['products' => $products]);
+$products = GetAllA("SELECT id, vendor_name, name, color, package, item_price, quantity FROM products", $con);
+respond(['success' => true, 'data' => $products]);

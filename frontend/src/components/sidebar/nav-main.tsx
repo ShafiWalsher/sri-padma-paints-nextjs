@@ -27,15 +27,22 @@ import { NAV_MENU_ITEMS } from "@/constants";
 export function NavMain() {
   const pathname = usePathname();
 
+  const isUrlActive = (url?: string) => {
+    if (!url) return false;
+    return pathname === url || pathname.startsWith(url + "/");
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="sr-only">Menu</SidebarGroupLabel>
       <SidebarMenu>
         {NAV_MENU_ITEMS.map((section: NavMenuItem, index: number) => {
           const hasChildren = section.childrens && section.childrens.length > 0;
-          const isParentActive = hasChildren
-            ? section.childrens?.some((child) => child.url === pathname)
-            : false;
+
+          const isParentActive =
+            hasChildren && section.childrens
+              ? section.childrens.some((child) => isUrlActive(child.url))
+              : isUrlActive(section.url);
 
           if (hasChildren) {
             return (
@@ -51,7 +58,11 @@ export function NavMain() {
                   >
                     <SidebarMenuButton
                       tooltip={section.title}
-                      className="w-full hover:bg-sidebar-active/10"
+                      className={cn(
+                        "w-full hover:bg-sidebar-active/10",
+                        isParentActive &&
+                          "bg-sidebar-active/10 hover:bg-sidebar-active/10 font-medium"
+                      )}
                     >
                       {section.icon && <section.icon className="size-5" />}
                       <span>{section.title}</span>
@@ -60,39 +71,51 @@ export function NavMain() {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {section.childrens?.map((child) => (
-                        <SidebarMenuSubItem key={child.url}>
-                          <SidebarMenuSubButton
-                            asChild
-                            className={cn(
-                              "w-full hover:bg-sidebar-active/10 rounded-lg",
-                              pathname === child.url &&
-                                "bg-sidebar-active/90 hover:bg-sidebar-active/80 hover:text-white text-white font-medium"
-                            )}
-                          >
-                            <Link
-                              href={child.url ?? "#"}
-                              className="flex items-center gap-2 w-full"
-                            >
-                              {child.icon && <child.icon className="size-4" />}
-                              <span>{child.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
+                      {hasChildren &&
+                        section.childrens?.map((child) => {
+                          const isActive = isUrlActive(child.url);
+                          return (
+                            <SidebarMenuSubItem key={child.url}>
+                              <SidebarMenuSubButton
+                                asChild
+                                className={cn(
+                                  "w-full hover:bg-sidebar-active/10 rounded-lg",
+                                  isActive &&
+                                    "bg-sidebar-active/90 hover:bg-sidebar-active/80 hover:text-white text-white font-medium"
+                                )}
+                              >
+                                <Link
+                                  href={child.url ?? "#"}
+                                  className="flex items-center gap-2 w-full"
+                                >
+                                  {child.icon && (
+                                    <child.icon
+                                      className={cn(
+                                        "size-5",
+                                        isActive && "!text-white"
+                                      )}
+                                    />
+                                  )}
+                                  <span>{child.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
             );
           } else {
+            const isActive = isUrlActive(section.url);
             return (
               <SidebarMenuItem key={`nav-${section.title}-${index}`}>
                 <SidebarMenuButton
                   asChild
                   className={cn(
                     "w-full hover:bg-sidebar-active/10 rounded-lg",
-                    pathname === section.url &&
+                    isActive &&
                       "bg-sidebar-active/90 hover:bg-sidebar-active/80 hover:text-white text-white font-medium"
                   )}
                 >
@@ -100,7 +123,11 @@ export function NavMain() {
                     href={section.url ?? "#"}
                     className="flex items-center gap-2 w-full"
                   >
-                    {section.icon && <section.icon className="size-5" />}
+                    {section.icon && (
+                      <section.icon
+                        className={cn("size-5", isActive && "!text-white")}
+                      />
+                    )}
                     <span>{section.title}</span>
                   </Link>
                 </SidebarMenuButton>

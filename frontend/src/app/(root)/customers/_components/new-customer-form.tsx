@@ -1,10 +1,9 @@
 "use client";
 
+import { FormInput } from "@/components/form/form-utilities";
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Form } from "@/components/ui/form"; // Import the Form component from shadcn/ui
 import { CustomerFormData, customerSchema } from "@/schemas/customer-schema";
 import { customerServices } from "@/services/customer-service";
 import { CustomerPayload } from "@/types/customer";
@@ -14,19 +13,23 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export const NewCustomerForm = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<CustomerFormData>({
+  const form = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
       name: "",
       mobile: "",
       address: "",
+      balance: "",
+      remark: "",
     },
   });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+    reset,
+  } = form;
 
   const router = useRouter();
 
@@ -38,74 +41,70 @@ export const NewCustomerForm = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={"space-y-4"}>
-      {/* Name Field */}
-      <div className="space-y-1">
-        <Label htmlFor="name">Name</Label>
-        <Input id="name" {...register("name")} placeholder="Enter your name" />
-        {errors.name && (
-          <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>
-        )}
-      </div>
+    <Form {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Name Field */}
+        <FormInput
+          control={control}
+          name="name"
+          label="Name"
+          placeholder="Enter your name"
+        />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 space-x-4">
-        {/* Mobile Field */}
-        <div className="space-y-1">
-          <Label htmlFor="mobile">Mobile</Label>
-          <Input
-            id="mobile"
-            {...register("mobile")}
+        <div className="grid grid-cols-1 md:grid-cols-2 space-x-4">
+          {/* Mobile Field */}
+          <FormInput
+            control={control}
+            name="mobile"
+            label="Mobile"
             placeholder="Enter your mobile number"
           />
-          {errors.mobile && (
-            <p className="text-red-600 text-sm mt-1">{errors.mobile.message}</p>
-          )}
-        </div>
 
-        {/* Address Field */}
-        <div className="space-y-1">
-          <Label htmlFor="address">Address</Label>
-          <Input
-            id="address"
-            {...register("address")}
+          {/* Address Field */}
+          <FormInput
+            control={control}
+            name="address"
+            label="Address"
             placeholder="Enter your address (optional)"
           />
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 space-x-4">
-        {/* balance Field */}
-        <div className="space-y-1">
-          <Label htmlFor="balance">Balance</Label>
-          <Input
-            id="balance"
-            {...register("balance")}
+        <div className="grid grid-cols-1 md:grid-cols-2 space-x-4">
+          {/* Balance Field */}
+          <FormInput
+            control={control}
+            name="balance"
+            label="Balance"
+            type="number"
             placeholder="Enter balance amount"
+          />
+
+          {/* Remark Field */}
+          <FormInput
+            control={control}
+            name="remark"
+            label="Remark"
+            placeholder="Add remark"
           />
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="remark">Remark</Label>
-          <Input id="remark" {...register("remark")} placeholder="Add remark" />
+        <div className="flex justify-end mt-10">
+          <CardFooter className="p-0">
+            <div className="space-x-2">
+              <Link href="/customers" className="secondary-button">
+                Cancel
+              </Link>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Submitting..." : "Create User"}
+              </Button>
+            </div>
+          </CardFooter>
         </div>
-      </div>
-
-      <div className="flex justify-end mt-10">
-        <CardFooter className="p-0">
-          <div className="space-x-2">
-            <Link href="/customers" className="secondary-button">
-              Cancel
-            </Link>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="disabled:bg-gray-400 disabled:cursor-not-allowed "
-            >
-              {isSubmitting ? "Submitting..." : "Create User"}
-            </Button>
-          </div>
-        </CardFooter>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 };

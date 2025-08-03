@@ -1,4 +1,9 @@
 <?php
+require_once __DIR__ . '/config.php'; // JWT configuration
+require_once __DIR__ . '/../vendor/autoload.php'; // Composer autoloader
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 /**
  * Database configuration
@@ -219,5 +224,56 @@ function print_array(mixed $array, bool $exit = false): void
     echo '</pre>';
     if ($exit) {
         exit;
+    }
+}
+
+
+
+/**
+ * Get the currently logged-in user from the JWT cookie.
+ * Returns user data if authenticated, otherwise an error response.
+ */
+function getCurrentUser(mysqli $con)
+{
+    $jwt = $_COOKIE['jwt_token'] ?? '';
+    if (!$jwt) {
+        return ['success' => false, 'error' => 'No JWT provided', 'code' => 401];
+    }
+
+    try {
+        // Decode JWT using the secret key
+        $decoded = JWT::decode($jwt, new Key(JWT_SECRET_KEY, 'HS256'));
+        $payload = (array) $decoded;
+
+        // Extract user ID from JWT payload
+        $userId = $payload['sub'] ?? null;
+        if (!$userId) {
+            return ['success' => false, 'error' => 'Invalid JWT payload', 'code' => 401];
+        }
+
+        // Fetch user from database to ensure they still exist
+        $query = "SELECT id, username, role FROM users WHERE id = ?";
+        $stmt = mysqli_prepare($con, $query);
+        mysqli_stmt_bind_param($stmt, 'i', $userId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $user = mysqli_fetch_assoc($result);
+        mysqli_stmt_close($stmt);
+
+        if (!$user) {
+            return ['success' => false, 'error' => 'User not found', 'code' => 404];
+        }
+
+        return [
+            'success' => true,
+            'data' => [
+                'id' => (int) $user['id'],
+                'username' => $user['username'],
+                'role' => $user['role']
+            ],
+            'message' => 'User retrieved successfully'
+        ];
+    } catch (Exception $e) {
+        return ['success' => false, 'error' => 'Invalid or expired JWT: ' . $e->getMessage(), 'code' => 401];
     }
 }

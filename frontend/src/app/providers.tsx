@@ -7,7 +7,13 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AuthLoader } from "@/components/auth/auth-loader";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1_000,
+      },
+    },
+  });
 
   return (
     <>
