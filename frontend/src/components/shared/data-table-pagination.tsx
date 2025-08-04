@@ -25,11 +25,12 @@ export function DataTablePagination<TData>({
   const btnClassNames =
     "border-[0.5px] border-border bg-gray-500/10 hover:bg-gray-500/20 transition-all duration-500 cursor-pointer disabled:cursor-not-allowed ";
   return (
-    <div className="flex items-center justify-end px-2 my-4">
-      <div className="hidden text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
+    <div className="flex items-center justify-between px-2 my-4">
+      <div className="text-sm text-muted-foreground">
+        Showing {table.getRowModel().rows.length} of{" "}
+        {table.getFilteredRowModel().rows.length} row(s)
       </div>
+      <div className="flex items-center lg:space-x-2"></div>
       <div className="flex items-center lg:space-x-2">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>

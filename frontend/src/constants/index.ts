@@ -11,6 +11,9 @@ import {
 export const APP_NAME_SHORT = "SPP";
 export const APP_NAME = "Shree Padma Paints";
 
+export const APP_ADDRESS =
+  "Sonai Nursing Home, Mulgund Road,<br>Gadag Karnataka - 582 101.<br>+91 95912 94257";
+
 export const NAV_MENU_ITEMS: NavMenuType = [
   {
     title: "Customers",
@@ -39,7 +42,7 @@ export const NAV_MENU_ITEMS: NavMenuType = [
       {
         title: "Manage Products",
         pageTitle: "Manage Products",
-        url: "/manage-products",
+        url: "/products",
         icon: Box,
       },
       {

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
 import BackButton from "@/components/shared/back-button";
 
-export default function DeliveryNoteView() {
+export default function DeliveryNoteViewPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
@@ -34,7 +34,7 @@ export default function DeliveryNoteView() {
   };
 
   return (
-    <div>
+    <>
       <div className="mb-6 flex items-center gap-4">
         <BackButton />
         <h2 className=" text-black/70">Delivery Note Info</h2>
@@ -134,6 +134,6 @@ export default function DeliveryNoteView() {
           </CardContent>
         </Card>
       </article>
-    </div>
+    </>
   );
 }

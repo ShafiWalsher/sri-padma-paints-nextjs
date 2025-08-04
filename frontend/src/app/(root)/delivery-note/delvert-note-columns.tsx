@@ -196,7 +196,7 @@ export function useColumns(): ColumnDef<DeliveryNote>[] {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white">
                 <DropdownMenuItem
-                  className="hover:!bg-blue-200/40"
+                  className="hover:!bg-blue-200/40 cursor-pointer"
                   onClick={() =>
                     router.push(`/delivery-note/view?id=${note.id}`)
                   }
@@ -204,24 +204,22 @@ export function useColumns(): ColumnDef<DeliveryNote>[] {
                   <Eye size={14} className="mr-2" />
                   View
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:!bg-blue-200/40">
-                  <SquarePen
-                    size={14}
-                    className="mr-2"
-                    onClick={() =>
-                      router.push(`/delivery-note/edit?id=${note.id}`)
-                    }
-                  />
+                <DropdownMenuItem
+                  className="hover:!bg-blue-200/40 cursor-pointer"
+                  // onClick={() =>
+                  //   router.push(`/delivery-note/edit?id=${note.id}`)
+                  // }
+                >
+                  <SquarePen size={14} className="mr-2" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:!bg-blue-200/40">
-                  <PrinterCheck
-                    size={14}
-                    className="mr-2"
-                    onClick={() =>
-                      router.push(`/delivery-note/print?id=${note.id}`)
-                    }
-                  />
+                <DropdownMenuItem
+                  className="hover:!bg-blue-200/40 cursor-pointer"
+                  onClick={() =>
+                    router.push(`/delivery-note/print?id=${note.id}`)
+                  }
+                >
+                  <PrinterCheck size={14} className="mr-2" />
                   Print
                 </DropdownMenuItem>
               </DropdownMenuContent>
