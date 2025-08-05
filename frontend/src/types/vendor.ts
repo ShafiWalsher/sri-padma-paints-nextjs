@@ -9,12 +9,3 @@ export interface Vendor {
   email?: string;
   gst_number?: string;
 }
-
-export interface VendorPayload {
-  vendor_name: string;
-  mobile?: string;
-  email?: string;
-  city?: string;
-  address?: string;
-  gst_number?: string;
-}

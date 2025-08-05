@@ -17,7 +17,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { multiProductSchema, ProductFormData } from "@/schemas/product-schema";
 import { vendorServices } from "@/services/vendor-service";
-import axioInstance from "@/lib/axios";
 import { productServices } from "@/services/product-service";
 
 // Vendor option interface

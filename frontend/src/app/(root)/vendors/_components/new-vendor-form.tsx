@@ -7,7 +7,6 @@ import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { vendorServices } from "@/services/vendor-service";
-import { VendorPayload } from "@/types/vendor";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { VendorFormData, vendorSchema } from "@/schemas/vendor-schema";
