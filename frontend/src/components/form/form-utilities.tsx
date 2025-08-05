@@ -291,7 +291,7 @@ export function FormTextarea<
 
 // FormSelect Component
 interface SelectOption {
-  value: string;
+  value: string | number;
   label: string;
   disabled?: boolean;
 }
@@ -361,7 +361,7 @@ export function FormSelect<
                 {options.map((option) => (
                   <SelectItem
                     key={option.value}
-                    value={option.value}
+                    value={String(option.value)}
                     disabled={option.disabled}
                   >
                     {option.label}
@@ -419,11 +419,9 @@ export function FormSelect<
                         <CommandItem
                           className="text-black hover:!bg-blue-100 data-[selected=true]:bg-primary/10"
                           key={option.value}
-                          value={option.value}
-                          onSelect={(currentValue) => {
-                            field.onChange(
-                              currentValue === field.value ? "" : currentValue
-                            );
+                          value={String(option.value)}
+                          onSelect={() => {
+                            field.onChange(option.value);
                             setOpen(false);
                           }}
                           disabled={option.disabled}

@@ -3,7 +3,7 @@ import { z } from "zod";
 /* ───────────────── CREDIT Delivery-Note schema ────────────────── */
 export const CreditDeliveryNoteSchema = z
   .object({
-    cust_id: z.string().optional(),
+    cust_id: z.number().nullable().optional(),
     name: z.string().min(1, "Customer Name is required"),
     mobile: z
       .string()
@@ -15,7 +15,7 @@ export const CreditDeliveryNoteSchema = z
       .array(
         z
           .object({
-            item_id: z.string(),
+            item_id: z.number().nullable(),
             item_name: z.string().min(1, "Item Name is required"),
             price: z.number().positive("Price must be a number"),
             quantity: z.number().positive("Quantity must be a number"),
@@ -81,7 +81,7 @@ export const CashDeliveryNoteSchema = z.object({
     .array(
       z
         .object({
-          item_id: z.string(),
+          item_id: z.number().nullable(),
           item_name: z.string().min(1, "Item Name is required"),
           price: z.number().positive("Price is required"),
           quantity: z.number().positive("Quantity is required"),

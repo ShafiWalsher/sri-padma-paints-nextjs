@@ -21,21 +21,21 @@ $username = $user['data']['username'];
 
 /* Body + validation */
 $body = get_json_input();
-if (empty($body['particulars']) || empty($body['date']) || empty($body['grandTotal'])) {
+if (empty($body['particulars']) || empty($body['date']) || empty($body['grand_total'])) {
     respond(['success' => false, 'error' => 'Missing required fields'], 400);
 }
 
 /* Customer balance */
-$custId = $body['custId'] ?? null;
+$cust_id = $body['cust_id'] ?? null;
 $oldBal = 0.0;
-if ($custId) {
-    $row = GetRow("SELECT balance FROM customers WHERE del=0 AND id={$custId}", $con);
+if ($cust_id) {
+    $row = GetRow("SELECT balance FROM customers WHERE del=0 AND id={$cust_id}", $con);
     if (!$row) respond(['success' => false, 'error' => 'Customer not found'], 404);
     $oldBal = (float)$row['balance'];
 }
 
 /* Money math */
-$total  = (float)$body['grandTotal'];
+$total  = (float)$body['grand_total'];
 $paid   = (float)($body['paid'] ?? 0);
 $newBal = $oldBal + $total - $paid;
 if ($newBal < 0) {
@@ -50,7 +50,7 @@ $con->begin_transaction();
 try {
     /* Insert delivery note */
     $noteId = insert_data_id([
-        'cust_id'     => $custId ?: null,
+        'cust_id'     => $cust_id ?: null,
         'name'        => $body['name']   ?? null,
         'mobile'      => $body['mobile'] ?? null,
         'date'        => $body['date'],
@@ -70,8 +70,8 @@ try {
     if (!$noteId) throw new Exception('Failed to create delivery note');
 
     /* Update customer balance if credit customer */
-    if ($custId) {
-        $ok = Execute("UPDATE customers SET balance={$newBal} WHERE id={$custId}", $con);
+    if ($cust_id) {
+        $ok = Execute("UPDATE customers SET balance={$newBal} WHERE id={$cust_id}", $con);
         if (!$ok) throw new Exception('Failed to update customer balance');
     }
 

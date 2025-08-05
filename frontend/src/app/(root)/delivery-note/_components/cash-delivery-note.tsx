@@ -27,12 +27,11 @@ import {
   FormSelect,
 } from "@/components/form/form-utilities";
 import Link from "next/link";
-import axioInstance from "@/lib/axios";
 import { deliveryNotesServices } from "@/services/delivery-notes-service";
 
 // Define product option type
 interface ProductOption {
-  value: string;
+  value: number;
   label: string;
   price: number;
   quantity: number;
@@ -181,7 +180,7 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
       date: "",
       particulars: [
         {
-          item_id: "",
+          item_id: null,
           item_name: "",
           price: 0,
           quantity: 0,
@@ -244,7 +243,8 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
   const onSubmit: SubmitHandler<CashDeliveryNoteFormData> = async (data) => {
     await deliveryNotesServices.createDeliveryNote(data);
     reset();
-    router.push("/delivery-note");
+    router.replace("/delivery-note");
+    router.refresh();
   };
 
   return (
@@ -297,7 +297,7 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
               size="sm"
               onClick={() =>
                 append({
-                  item_id: "",
+                  item_id: null,
                   item_name: "",
                   price: 0,
                   quantity: 0,

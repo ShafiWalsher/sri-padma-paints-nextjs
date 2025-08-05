@@ -28,25 +28,24 @@ import {
   FormSelect,
 } from "@/components/form/form-utilities";
 import Link from "next/link";
-import axioInstance from "@/lib/axios";
 import { toast } from "sonner";
 import { deliveryNotesServices } from "@/services/delivery-notes-service";
 
 // Product option type
 interface ProductOption {
-  value: string;
+  value: number;
   label: string;
   price: number;
   quantity: number;
 }
 
 // Customer option type
-interface CustomerOption {
-  value: string;
+type CustomerOption = {
+  value: number;
   label: string;
   mobile: string;
   old_balance: number;
-}
+};
 
 type FormProps = { formClassName?: string };
 
@@ -185,13 +184,13 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
   const form = useForm<CreditDeliveryNoteFormData>({
     resolver: zodResolver(CreditDeliveryNoteSchema),
     defaultValues: {
-      cust_id: "",
+      cust_id: null,
       name: "",
       mobile: "",
       date: "",
       particulars: [
         {
-          item_id: "",
+          item_id: null,
           item_name: "",
           price: 0,
           quantity: 0,
@@ -223,97 +222,89 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
 
   // Fetch products and customers
   useEffect(() => {
-    const loadData = async () => {
+    async function loadData() {
       try {
-        // Fetch products
-        const productData = await productServices.fetchProducts();
-        const products = productData.map((item: any) => ({
-          value: item.id,
-          label: item.name,
-          price: parseFloat(item.item_price),
-          quantity: item.quantity,
-        }));
-        setProductOptions(products);
+        const [productData, customerData] = await Promise.all([
+          productServices.fetchProducts(),
+          customerServices.fetchCustomers(),
+        ]);
 
-        // Fetch customers
-        const customerData = await customerServices.fetchCustomers();
-        const customers = customerData.map((item: any) => ({
-          value: item.id,
-          label: item.name,
-          mobile: item.mobile || "",
-          old_balance: parseFloat(item.balance) || 0,
-        }));
-        setCustomerOptions(customers);
+        setProductOptions(
+          productData.map((item: any) => ({
+            value: item.id,
+            label: item.name,
+            price: parseFloat(item.item_price),
+            quantity: item.quantity,
+          }))
+        );
+
+        setCustomerOptions(
+          customerData.map((item: any) => ({
+            value: Number(item.id), // 👈 Convert to number
+            label: item.name,
+            mobile: item.mobile || "",
+            old_balance: parseFloat(item.balance) || 0,
+          }))
+        );
       } catch (err: any) {
         toast.error("Error fetching data: " + (err.message || err));
       }
-    };
+    }
+
     loadData();
   }, []);
 
   // Handle customer selection changes
   const watchedcust_id = useWatch({ control, name: "cust_id" });
 
+  const selectedCustomer = useMemo(() => {
+    if (!watchedcust_id) return null;
+    return customerOptions.find((c) => c.value === watchedcust_id) ?? null;
+  }, [watchedcust_id, customerOptions]);
+
   useEffect(() => {
-    if (!watchedcust_id) {
-      setValue("cust_id", "", { shouldValidate: true, shouldDirty: true });
-      setValue("name", "", { shouldValidate: true, shouldDirty: true });
-      setValue("mobile", "", { shouldValidate: true, shouldDirty: true });
-      setValue("old_balance", 0, { shouldValidate: true, shouldDirty: true });
-      return;
+    if (!selectedCustomer) {
+      setValue("name", "", { shouldValidate: true });
+      setValue("mobile", "", { shouldValidate: true });
+      setValue("old_balance", 0, { shouldValidate: true });
+    } else {
+      setValue("cust_id", selectedCustomer.value, {
+        shouldValidate: true,
+      });
+      setValue("name", selectedCustomer.label, { shouldValidate: true });
+      setValue("mobile", selectedCustomer.mobile, { shouldValidate: true });
+      setValue("old_balance", selectedCustomer.old_balance, {
+        shouldValidate: true,
+      });
     }
-
-    const selected = customerOptions.find((c) => c.value === watchedcust_id);
-    if (!selected) return;
-
-    setValue("cust_id", selected.value, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    setValue("name", selected.label, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    setValue("mobile", selected.mobile, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    setValue("old_balance", selected.old_balance, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  }, [watchedcust_id, customerOptions, setValue]);
+  }, [selectedCustomer, setValue]);
 
   // Compute grand total and balance
   const watchedParticulars = useWatch({ control, name: "particulars" });
+  const paid = useWatch({ control, name: "paid" });
+  const old_balance = useWatch({ control, name: "old_balance" });
 
-  const grand_total = useMemo(() => {
+  const calculatedGrandTotal = useMemo(() => {
     return (
       watchedParticulars?.reduce((sum, p) => sum + (Number(p.total) || 0), 0) ??
       0
     );
   }, [watchedParticulars]);
 
-  const paid = useWatch({ control, name: "paid" });
-  const old_balance = useWatch({ control, name: "old_balance" });
+  const calculatedBalance = useMemo(() => {
+    return Number(old_balance || 0) + calculatedGrandTotal - Number(paid || 0);
+  }, [old_balance, calculatedGrandTotal, paid]);
 
   useEffect(() => {
-    setValue("grand_total", grand_total, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    const balance = Number(old_balance || 0) + grand_total - Number(paid || 0);
-    setValue("balance", balance, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  }, [grand_total, paid, old_balance, setValue]);
+    setValue("grand_total", calculatedGrandTotal, { shouldValidate: true });
+    setValue("balance", calculatedBalance, { shouldValidate: true });
+  }, [calculatedGrandTotal, calculatedBalance, setValue]);
 
   // Form submission
   const onSubmit: SubmitHandler<CreditDeliveryNoteFormData> = async (data) => {
     await deliveryNotesServices.createDeliveryNote(data);
-    reset();
-    router.push("/delivery-note");
+    router.replace("/delivery-note");
+    router.refresh();
   };
 
   return (
@@ -377,7 +368,7 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
               size="sm"
               onClick={() =>
                 append({
-                  item_id: "",
+                  item_id: null,
                   item_name: "",
                   price: 0,
                   quantity: 0,

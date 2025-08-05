@@ -60,9 +60,6 @@ export default function DeliveryNoteViewPage() {
                 <div>Date</div>
                 <div>: {formatDate(note.date)}</div>
 
-                <div>Old Balance</div>
-                <div>: ₹{note.old_balance}</div>
-
                 <div>Status</div>
                 <div>
                   :
@@ -80,14 +77,19 @@ export default function DeliveryNoteViewPage() {
                 <div>Total Amount :</div>
                 <div>{note.total_amount}</div>
 
+                <div>Old Balance :</div>
+                <div>{note.old_balance}</div>
+
                 <div>Grand Total :</div>
                 <div>{note.grand_total}</div>
 
                 <div>Paid :</div>
                 <div>{note.paid}</div>
 
+                <hr className="w-full col-span-2 mt-2  border-t border-border/40" />
+
                 <div>Balance :</div>
-                <div>{note.balance}</div>
+                <div className="font-bold text-lg">₹{note.balance}</div>
               </div>
             </div>
           </CardContent>
@@ -111,7 +113,7 @@ export default function DeliveryNoteViewPage() {
                     </div>
                     <div className="w-full flex justify-between border border-border/20 p-3 rounded-lg bg-gray-50 text-sm space-y-2">
                       <div className="space-y-2">
-                        <p className="font-medium text-md">{item.item_name}</p>
+                        <p className="font-medium text-lg">{item.item_name}</p>
                         <div className="flex gap-6">
                           {item.color_code && (
                             <p>Color Code: {item.color_code}</p>
