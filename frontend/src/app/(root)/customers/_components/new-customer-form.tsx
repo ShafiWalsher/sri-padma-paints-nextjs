@@ -6,7 +6,6 @@ import { CardFooter } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { CustomerFormData, customerSchema } from "@/schemas/customer-schema";
 import { customerServices } from "@/services/customer-service";
-import { CustomerPayload } from "@/types/customer";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,7 +33,7 @@ export const NewCustomerForm = () => {
   const router = useRouter();
 
   // Function to handle form submission and call the API endpoint.
-  async function onSubmit(data: CustomerPayload) {
+  async function onSubmit(data: CustomerFormData) {
     await customerServices.createCustomer(data);
     reset();
     router.push("/customers");
