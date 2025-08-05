@@ -7,8 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     respond(['success' => false, 'error' => 'Invalid request method'], 405);
 }
 
+$vendors = GetAllA("SELECT id, vendor_name, address, city, state, postal_code, mobile, email, gst_number FROM vendors", $con);
 
-// Retrieve all customers
-$customers = GetAllA("SELECT * FROM customers", $con);
 
-respond(['success' => true, 'data' => $customers]);
+respond(['success' => true, 'data' => $vendors]);

@@ -1,21 +1,21 @@
 import axioInstance from "@/lib/axios";
-import { ProductFormData } from "@/schemas/product-schema";
-import { Product } from "@/types/product";
+import { VendorFormData } from "@/schemas/vendor-schema";
+import { Vendor } from "@/types/vendor";
 
-async function createProduct(payload: ProductFormData) {
+async function createVendor(payload: VendorFormData) {
   const response = await axioInstance.post(
-    "/products/createProduct.php",
+    "/vendors/createVendor.php",
     payload
   );
   return response.data;
 }
 
-async function fetchProducts(): Promise<Product[]> {
+async function fetchVendors(): Promise<Vendor[]> {
   try {
     const response = await axioInstance.get<{
       success: boolean;
-      data: Product[];
-    }>("/products/getAllProducts.php");
+      data: Vendor[];
+    }>("/vendors/getAllVendors.php");
     if (response.data.success) {
       return response.data.data;
     }
@@ -25,7 +25,7 @@ async function fetchProducts(): Promise<Product[]> {
   }
 }
 
-export const productServices = {
-  createProduct,
-  fetchProducts,
+export const vendorServices = {
+  createVendor,
+  fetchVendors,
 };

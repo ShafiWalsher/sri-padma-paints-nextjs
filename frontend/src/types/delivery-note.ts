@@ -1,9 +1,11 @@
 export interface DeliveryNoteItem {
-  item_id: string;
+  item_id: number;
   item_name: string;
-  quantity?: number;
-  rate?: number;
+  quantity: number;
+  price: number;
   total: number;
+  color_code: string;
+  color_price: number;
 }
 
 export interface DeliveryNote {
@@ -11,16 +13,16 @@ export interface DeliveryNote {
   cust_id: number | null;
   name: string;
   mobile: string;
-  date: string; // ISO date: "YYYY-MM-DD"
-  items: DeliveryNoteItem[]; // parsed JSON array
+  date: string;
+  items: DeliveryNoteItem[];
   total_amount: number;
   old_balance: number;
   grand_total: number;
   paid: number;
   balance: number;
-  status: "pending" | "paid" | string;
-  del: number; // 0 or 1
-  created_by: string | null;
-  created_at: string; // ISO timestamp
-  updated_at: string; // ISO timestamp
+  status: "pending" | "completed" | string;
+  del: number;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 }

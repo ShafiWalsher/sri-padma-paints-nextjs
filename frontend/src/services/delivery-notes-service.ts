@@ -1,5 +1,14 @@
 import axioInstance from "@/lib/axios";
+import { CashDeliveryNoteFormData } from "@/schemas/delivery-note-schema";
 import { DeliveryNote } from "@/types/delivery-note";
+
+async function createDeliveryNote(payload: CashDeliveryNoteFormData) {
+  const response = await axioInstance.post(
+    "/deliveryNote/createDeliveryNote.php",
+    payload
+  );
+  return response.data;
+}
 
 async function fetchDeliveryNotes(): Promise<DeliveryNote[]> {
   try {
@@ -35,6 +44,7 @@ async function fetchDeliveryNote(id: string): Promise<DeliveryNote> {
 
 // Export all auth-related functions
 export const deliveryNotesServices = {
+  createDeliveryNote,
   fetchDeliveryNotes,
   fetchDeliveryNote,
 };

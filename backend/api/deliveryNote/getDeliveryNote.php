@@ -17,6 +17,9 @@ $id = (int) $_GET['id'];
 $delivery_note = GetRow("SELECT * FROM delivery_notes WHERE del=0 AND id={$id}", $con);
 
 if ($delivery_note) {
+    // Decode JSON field
+    $delivery_note['items'] = json_decode($delivery_note['items'], true);
+
     respond(['success' => true, 'data' => $delivery_note]);
 } else {
     respond(['success' => false, 'error' => 'User not found'], 404);

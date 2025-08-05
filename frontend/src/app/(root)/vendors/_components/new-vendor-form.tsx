@@ -4,94 +4,102 @@ import { FormInput } from "@/components/form/form-utilities";
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
-import { CustomerFormData, customerSchema } from "@/schemas/customer-schema";
-import { customerServices } from "@/services/customer-service";
-import { CustomerPayload } from "@/types/customer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { vendorServices } from "@/services/vendor-service";
+import { VendorPayload } from "@/types/vendor";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { VendorFormData, vendorSchema } from "@/schemas/vendor-schema";
 
-export const NewCustomerForm = () => {
-  const form = useForm<CustomerFormData>({
-    resolver: zodResolver(customerSchema),
+export const NewVendorForm = () => {
+  const form = useForm<VendorFormData>({
+    resolver: zodResolver(vendorSchema),
     defaultValues: {
-      name: "",
+      vendor_name: "",
       mobile: "",
+      email: "",
+      city: "",
       address: "",
-      balance: "",
-      remark: "",
+      gst_number: "",
     },
   });
 
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting },
     reset,
+    formState: { isSubmitting },
   } = form;
 
   const router = useRouter();
 
-  // Function to handle form submission and call the API endpoint.
-  async function onSubmit(data: CustomerPayload) {
-    await customerServices.createCustomer(data);
+  /* Submit handler */
+  async function onSubmit(data: VendorFormData) {
+    await vendorServices.createVendor(data);
     reset();
-    router.push("/customers");
+    router.replace("/vendors");
+    router.refresh();
   }
 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Name Field */}
+        {/* Vendor Name */}
         <FormInput
           control={control}
-          name="name"
-          label="Name"
-          placeholder="Enter your name"
+          name="vendor_name"
+          label="Vendor Name"
+          placeholder="Enter vendor name"
         />
 
+        {/* Two-column grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Mobile Field */}
           <FormInput
             control={control}
             name="mobile"
             label="Mobile"
-            placeholder="Enter your mobile number"
+            placeholder="Enter mobile number"
           />
 
-          {/* Address Field */}
           <FormInput
             control={control}
-            name="address"
-            label="Address"
-            placeholder="Enter your address (optional)"
+            name="email"
+            label="Email (optional)"
+            type="email"
+            placeholder="Enter email address"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Balance Field */}
           <FormInput
             control={control}
-            name="balance"
-            label="Balance"
-            type="number"
-            placeholder="Enter balance amount"
+            name="city"
+            label="City (optional)"
+            placeholder="Enter city"
           />
 
-          {/* Remark Field */}
           <FormInput
             control={control}
-            name="remark"
-            label="Remark"
-            placeholder="Add remark"
+            name="address"
+            label="Address (optional)"
+            placeholder="Enter address"
           />
         </div>
 
+        {/* GST Number */}
+        <FormInput
+          control={control}
+          name="gst_number"
+          label="GST Number (optional)"
+          placeholder="Enter GST number"
+        />
+
+        {/* Footer: Cancel / Submit */}
         <div className="flex justify-end mt-10">
           <CardFooter className="p-0">
             <div className="space-x-2">
-              <Link href="/customers" className="secondary-button">
+              <Link href="/vendors" className="secondary-button">
                 Cancel
               </Link>
               <Button
@@ -99,7 +107,7 @@ export const NewCustomerForm = () => {
                 disabled={isSubmitting}
                 className="disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Submitting..." : "Create User"}
+                {isSubmitting ? "Submitting..." : "Create Vendor"}
               </Button>
             </div>
           </CardFooter>

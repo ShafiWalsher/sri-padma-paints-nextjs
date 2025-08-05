@@ -77,11 +77,37 @@ function get_json_input(): array
 function GetAllA(string $sql, mysqli $con): array
 {
     $result = mysqli_query($con, $sql);
-    $result_array = [];
+    $rows = [];
+    $fields = mysqli_fetch_fields($result);
+
     while ($row = mysqli_fetch_assoc($result)) {
-        $result_array[] = $row;
+        foreach ($fields as $field) {
+            $name = $field->name;
+            switch ($field->type) {
+                case MYSQLI_TYPE_TINY:
+                case MYSQLI_TYPE_SHORT:
+                case MYSQLI_TYPE_LONG:
+                case MYSQLI_TYPE_INT24:
+                case MYSQLI_TYPE_LONGLONG:
+                    $row[$name] = isset($row[$name]) ? (int) $row[$name] : null;
+                    break;
+
+                case MYSQLI_TYPE_DECIMAL:
+                case MYSQLI_TYPE_NEWDECIMAL:
+                case MYSQLI_TYPE_FLOAT:
+                case MYSQLI_TYPE_DOUBLE:
+                    $row[$name] = isset($row[$name]) ? (float) $row[$name] : null;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        $rows[] = $row;
     }
-    return $result_array;
+
+    return $rows;
 }
 
 /**
@@ -103,7 +129,36 @@ function date_ch(string $dt): ?string
 function GetRow(string $sql, mysqli $con): ?array
 {
     $result = mysqli_query($con, $sql);
-    return mysqli_fetch_assoc($result) ?: null;
+    if (!$result || mysqli_num_rows($result) === 0) return null;
+
+    $row = mysqli_fetch_assoc($result);
+    $fields = mysqli_fetch_fields($result);
+
+    foreach ($fields as $field) {
+        $name = $field->name;
+        switch ($field->type) {
+            case MYSQLI_TYPE_TINY:   // Boolean or tinyint
+            case MYSQLI_TYPE_SHORT:
+            case MYSQLI_TYPE_LONG:
+            case MYSQLI_TYPE_INT24:
+            case MYSQLI_TYPE_LONGLONG:
+                $row[$name] = isset($row[$name]) ? (int) $row[$name] : null;
+                break;
+
+            case MYSQLI_TYPE_DECIMAL:
+            case MYSQLI_TYPE_NEWDECIMAL:
+            case MYSQLI_TYPE_FLOAT:
+            case MYSQLI_TYPE_DOUBLE:
+                $row[$name] = isset($row[$name]) ? (float) $row[$name] : null;
+                break;
+
+            default:
+                // Leave as string (e.g., for dates or text)
+                break;
+        }
+    }
+
+    return $row;
 }
 
 /**
@@ -277,3 +332,13 @@ function getCurrentUser(mysqli $con)
         return ['success' => false, 'error' => 'Invalid or expired JWT: ' . $e->getMessage(), 'code' => 401];
     }
 }
+
+
+
+/* ───────── Global Handler: convert ALL uncaught errors to JSON ───────── */
+set_exception_handler(function (Throwable $e) {
+    respond([
+        'success' => false,
+        'error'   => 'Server error: ' . $e->getMessage(),
+    ], 500);
+});

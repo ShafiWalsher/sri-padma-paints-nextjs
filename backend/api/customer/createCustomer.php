@@ -3,25 +3,27 @@ require_once '../cors.php';
 require_once '../connect-db.php';
 validate_bearer_token();
 
+/* ───────── Allow only POST ───────── */
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond(['error' => 'Invalid request method'], 405);
+    respond(['success' => false, 'error' => 'Only POST allowed'], 405);
 }
 
-$data = get_json_input();
+/* ───────── Parse body and validate ───────── */
+$body = get_json_input();
 
-// Check required fields
-if (!isset($data['name'], $data['mobile'])) {
-    respond(['error' => 'Missing required fields'], 400);
+if (empty($body['name']) || empty($body['mobile'])) {
+    respond(['success' => false, 'error' => 'Missing required fields'], 400);
 }
 
-$user = $data;
-unset($data);
+/* ───────── Insert row (throws on SQL error) ───────── */
+$customerId = insert_data_id($body, 'customers', $con);
 
-
-$inserted = insert_data_id($user, 'customers', $con);
-
-if ($inserted) {
-    respond(['success' => true, 'message' => 'User created successfully']);
-} else {
-    respond(['error' => 'Failed to create user'], 500);
+if (!$customerId) {
+    respond(['success' => false, 'error' => 'Failed to create user'], 500);
 }
+
+/* ───────── Success ───────── */
+respond([
+    'success' => true,
+    'message' => 'User created successfully',
+], 201);

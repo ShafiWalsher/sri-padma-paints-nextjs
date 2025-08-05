@@ -3,16 +3,20 @@ import { z } from "zod";
 /* ───────────────── CREDIT Delivery-Note schema ────────────────── */
 export const CreditDeliveryNoteSchema = z
   .object({
-    custId: z.string().optional(),
+    cust_id: z.string().optional(),
     name: z.string().min(1, "Customer Name is required"),
-    mobile: z.string().optional(),
+    mobile: z
+      .string()
+      .regex(/^\d{10}$/, { message: "Mobile must be 10 digits" })
+      .optional()
+      .or(z.literal("")),
     date: z.string().min(1, "Date is required"),
     particulars: z
       .array(
         z
           .object({
-            itemId: z.string(),
-            itemName: z.string().min(1, "Item Name is required"),
+            item_id: z.string(),
+            item_name: z.string().min(1, "Item Name is required"),
             price: z.number().positive("Price must be a number"),
             quantity: z.number().positive("Quantity must be a number"),
             color_code: z.string().optional(),
@@ -33,14 +37,14 @@ export const CreditDeliveryNoteSchema = z
         });
       })
       .min(1, "At least one particular is required"),
-    grandTotal: z.number().nonnegative("Grand Total must be a number"),
+    grand_total: z.number().nonnegative("Grand Total must be a number"),
     paid: z.number().nonnegative("Paid Amount must be a number"),
-    oldBalance: z.number().nonnegative("Old Balance must be a number"),
+    old_balance: z.number().nonnegative("Old Balance must be a number"),
     balance: z.number().nonnegative("Balance Amount must be a number"),
   })
   .refine(
     (data) => {
-      if (!data.custId) return true; // skip validation if no customer selected
+      if (!data.cust_id) return true; // skip validation if no customer selected
       return /^\d{10}$/.test(data.mobile || "");
     },
     {
@@ -49,7 +53,7 @@ export const CreditDeliveryNoteSchema = z
     }
   )
   .superRefine((data, ctx) => {
-    const calcBalance = data.oldBalance + data.grandTotal - data.paid;
+    const calcBalance = data.old_balance + data.grand_total - data.paid;
     if (data.balance !== calcBalance) {
       ctx.addIssue({
         path: ["balance"],
@@ -70,14 +74,15 @@ export const CashDeliveryNoteSchema = z.object({
   mobile: z
     .string()
     .regex(/^\d{10}$/, { message: "Mobile must be 10 digits" })
-    .optional(),
+    .optional()
+    .or(z.literal("")),
   date: z.string().min(1, "Date is required"),
   particulars: z
     .array(
       z
         .object({
-          itemId: z.string(),
-          itemName: z.string().min(1, "Item Name is required"),
+          item_id: z.string(),
+          item_name: z.string().min(1, "Item Name is required"),
           price: z.number().positive("Price is required"),
           quantity: z.number().positive("Quantity is required"),
           color_code: z.string().optional(),
@@ -98,7 +103,7 @@ export const CashDeliveryNoteSchema = z.object({
       });
     })
     .min(1, "At least one particular is required"),
-  grandTotal: z.number().nonnegative("Grand Total must be a number"),
+  grand_total: z.number().nonnegative("Grand Total must be a number"),
 });
 
 export type CashDeliveryNoteFormData = z.infer<typeof CashDeliveryNoteSchema>;

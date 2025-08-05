@@ -48,7 +48,7 @@ export const NAV_MENU_ITEMS: NavMenuType = [
       {
         title: "Manage Vendors",
         pageTitle: "Manage Vendors",
-        url: "/manage-vendors",
+        url: "/vendors",
         icon: Truck,
       },
     ],

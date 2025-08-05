@@ -230,11 +230,11 @@
 
   .primary-button,
   .secondary-button {
-    @apply rounded-lg text-sm font-medium px-4 py-2 w-fit;
+    @apply !rounded-lg !text-sm !font-medium !px-4 !py-2 w-fit;
   }
 
   .secondary-button {
-    @apply border-2 border-primary hover:bg-primary/10;
+    @apply !border-2 !border-primary hover:!bg-primary/5 !bg-transparent !text-black;
   }
 
   .primary-button {

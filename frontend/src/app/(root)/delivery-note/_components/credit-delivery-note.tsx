@@ -30,6 +30,7 @@ import {
 import Link from "next/link";
 import axioInstance from "@/lib/axios";
 import { toast } from "sonner";
+import { deliveryNotesServices } from "@/services/delivery-notes-service";
 
 // Product option type
 interface ProductOption {
@@ -59,9 +60,9 @@ const ParticularRow: React.FC<{
   setValue: UseFormSetValue<CreditDeliveryNoteFormData>;
   getValues: UseFormGetValues<CreditDeliveryNoteFormData>;
 }> = ({ index, productOptions, remove, isRemovable, control, setValue }) => {
-  const watchedItemId = useWatch({
+  const watcheditem_id = useWatch({
     control,
-    name: `particulars.${index}.itemId`,
+    name: `particulars.${index}.item_id`,
   });
   const watchedQty = useWatch({
     control,
@@ -73,18 +74,18 @@ const ParticularRow: React.FC<{
   });
 
   useEffect(() => {
-    if (!watchedItemId) {
+    if (!watcheditem_id) {
       // Clear dependent fields when nothing selected
-      setValue(`particulars.${index}.itemName`, "");
+      setValue(`particulars.${index}.item_name`, "");
       setValue(`particulars.${index}.price`, 0);
       setValue(`particulars.${index}.total`, 0);
       return;
     }
 
-    const selected = productOptions.find((p) => p.value === watchedItemId);
+    const selected = productOptions.find((p) => p.value === watcheditem_id);
     if (!selected) return;
 
-    setValue(`particulars.${index}.itemName`, selected.label);
+    setValue(`particulars.${index}.item_name`, selected.label);
     setValue(`particulars.${index}.price`, selected.price);
 
     // Set quantity only if it's currently zero or invalid
@@ -100,7 +101,7 @@ const ParticularRow: React.FC<{
       shouldDirty: true,
     });
   }, [
-    watchedItemId,
+    watcheditem_id,
     watchedQty,
     watchedColorPrice,
     productOptions,
@@ -114,7 +115,7 @@ const ParticularRow: React.FC<{
         <div className="space-y-1 col-span-2">
           <FormSelect
             control={control}
-            name={`particulars.${index}.itemId`}
+            name={`particulars.${index}.item_id`}
             label="Product"
             variant="searchable"
             placeholder="Select product..."
@@ -184,14 +185,14 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
   const form = useForm<CreditDeliveryNoteFormData>({
     resolver: zodResolver(CreditDeliveryNoteSchema),
     defaultValues: {
-      custId: "",
+      cust_id: "",
       name: "",
       mobile: "",
       date: "",
       particulars: [
         {
-          itemId: "",
-          itemName: "",
+          item_id: "",
+          item_name: "",
           price: 0,
           quantity: 0,
           color_code: "",
@@ -199,9 +200,9 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
           total: 0,
         },
       ],
-      grandTotal: 0,
+      grand_total: 0,
       paid: 0,
-      oldBalance: 0,
+      old_balance: 0,
       balance: 0,
     },
     mode: "onBlur",
@@ -251,21 +252,21 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
   }, []);
 
   // Handle customer selection changes
-  const watchedCustId = useWatch({ control, name: "custId" });
+  const watchedcust_id = useWatch({ control, name: "cust_id" });
 
   useEffect(() => {
-    if (!watchedCustId) {
-      setValue("custId", "", { shouldValidate: true, shouldDirty: true });
+    if (!watchedcust_id) {
+      setValue("cust_id", "", { shouldValidate: true, shouldDirty: true });
       setValue("name", "", { shouldValidate: true, shouldDirty: true });
       setValue("mobile", "", { shouldValidate: true, shouldDirty: true });
-      setValue("oldBalance", 0, { shouldValidate: true, shouldDirty: true });
+      setValue("old_balance", 0, { shouldValidate: true, shouldDirty: true });
       return;
     }
 
-    const selected = customerOptions.find((c) => c.value === watchedCustId);
+    const selected = customerOptions.find((c) => c.value === watchedcust_id);
     if (!selected) return;
 
-    setValue("custId", selected.value, {
+    setValue("cust_id", selected.value, {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -277,16 +278,16 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
       shouldValidate: true,
       shouldDirty: true,
     });
-    setValue("oldBalance", selected.old_balance, {
+    setValue("old_balance", selected.old_balance, {
       shouldValidate: true,
       shouldDirty: true,
     });
-  }, [watchedCustId, customerOptions, setValue]);
+  }, [watchedcust_id, customerOptions, setValue]);
 
   // Compute grand total and balance
   const watchedParticulars = useWatch({ control, name: "particulars" });
 
-  const grandTotal = useMemo(() => {
+  const grand_total = useMemo(() => {
     return (
       watchedParticulars?.reduce((sum, p) => sum + (Number(p.total) || 0), 0) ??
       0
@@ -294,24 +295,23 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
   }, [watchedParticulars]);
 
   const paid = useWatch({ control, name: "paid" });
-  const oldBalance = useWatch({ control, name: "oldBalance" });
+  const old_balance = useWatch({ control, name: "old_balance" });
 
   useEffect(() => {
-    setValue("grandTotal", grandTotal, {
+    setValue("grand_total", grand_total, {
       shouldValidate: true,
       shouldDirty: true,
     });
-    const balance = Number(oldBalance || 0) + grandTotal - Number(paid || 0);
+    const balance = Number(old_balance || 0) + grand_total - Number(paid || 0);
     setValue("balance", balance, {
       shouldValidate: true,
       shouldDirty: true,
     });
-  }, [grandTotal, paid, oldBalance, setValue]);
+  }, [grand_total, paid, old_balance, setValue]);
 
   // Form submission
   const onSubmit: SubmitHandler<CreditDeliveryNoteFormData> = async (data) => {
-    console.log(data);
-    await axioInstance.post("/deliveryNote/createDeliveryNote.php", data);
+    await deliveryNotesServices.createDeliveryNote(data);
     reset();
     router.push("/delivery-note");
   };
@@ -324,7 +324,7 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
       >
         <FormSelect
           control={control}
-          name="custId"
+          name="cust_id"
           label="Customer"
           variant="searchable"
           placeholder="Select customer..."
@@ -349,7 +349,7 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
           />
           <FormInput
             control={control}
-            name="oldBalance"
+            name="old_balance"
             label="Old Balance"
             type="hidden"
             placeholder="Old Balance"
@@ -377,8 +377,8 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
               size="sm"
               onClick={() =>
                 append({
-                  itemId: "",
-                  itemName: "",
+                  item_id: "",
+                  item_name: "",
                   price: 0,
                   quantity: 0,
                   color_code: "",
@@ -399,7 +399,7 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
           <div className="w-1/3 space-y-2">
             <FormInput
               control={control}
-              name="grandTotal"
+              name="grand_total"
               label="Grand Total"
               type="number"
               readOnly

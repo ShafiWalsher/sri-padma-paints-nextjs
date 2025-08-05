@@ -56,7 +56,7 @@ const LoginPage = () => {
 
   return (
     <>
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm gap-2">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>

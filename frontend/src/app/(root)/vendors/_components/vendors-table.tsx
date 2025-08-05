@@ -2,13 +2,13 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/shared/data-table";
-import { useColumns } from "../product-columns";
-import { productServices } from "@/services/product-service";
+import { useColumns } from "../vendor-columns";
+import { vendorServices } from "@/services/vendor-service";
 
-export default function ProductsTable() {
+export default function VendorsTable() {
   const { data } = useSuspenseQuery({
-    queryKey: ["products"],
-    queryFn: productServices.fetchProducts,
+    queryKey: ["vendors"],
+    queryFn: vendorServices.fetchVendors,
   });
 
   const columns = useColumns();
@@ -17,8 +17,8 @@ export default function ProductsTable() {
     <DataTable
       columns={columns}
       data={data || []}
-      searchableItems={["name"]}
-      searchPlaceHolder="Search for a product"
+      searchableItems={["vendor_name"]}
+      searchPlaceHolder="Search for a vendor"
       initialPageSize={50}
     />
   );

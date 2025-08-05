@@ -23,6 +23,8 @@ export default function DeliveryNotePrintPage() {
   const items =
     typeof note.items === "string" ? JSON.parse(note.items) : note.items || [];
 
+  console.log(items);
+
   return (
     <>
       <div className="mb-6 flex items-center gap-4">
@@ -102,9 +104,9 @@ export default function DeliveryNotePrintPage() {
                   <tr key={index} className="border-t hover:bg-gray-50">
                     <td className="p-3 border-r">{index + 1}</td>
                     <td className="p-3 border-r">{item.item_name}</td>
+                    <td className="p-3 border-r">{item.quantity}</td>
+                    <td className="p-3 border-r">₹{item.price}</td>
                     <td className="p-3 border-r">{item.color_code || "-"}</td>
-                    <td className="p-3 border-r">{item.item_quantity}</td>
-                    <td className="p-3 border-r">₹{item.item_price}</td>
                     <td className="p-3 border-r">
                       {item.color_price ? `₹${item.color_price}` : "-"}
                     </td>

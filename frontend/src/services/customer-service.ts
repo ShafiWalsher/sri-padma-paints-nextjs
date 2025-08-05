@@ -1,5 +1,6 @@
 import axioInstance from "@/lib/axios";
-import type { Customer, CustomerPayload } from "@/types/customer";
+import { CustomerFormData } from "@/schemas/customer-schema";
+import type { Customer } from "@/types/customer";
 
 async function fetchCustomers(): Promise<Customer[]> {
   try {
@@ -16,7 +17,7 @@ async function fetchCustomers(): Promise<Customer[]> {
   }
 }
 
-async function createCustomer(payload: CustomerPayload) {
+async function createCustomer(payload: CustomerFormData) {
   const response = await axioInstance.post(
     "/customer/createCustomer.php",
     payload
@@ -24,7 +25,6 @@ async function createCustomer(payload: CustomerPayload) {
   return response.data;
 }
 
-// Export all auth-related functions
 export const customerServices = {
   fetchCustomers,
   createCustomer,

@@ -28,6 +28,7 @@ import {
 } from "@/components/form/form-utilities";
 import Link from "next/link";
 import axioInstance from "@/lib/axios";
+import { deliveryNotesServices } from "@/services/delivery-notes-service";
 
 // Define product option type
 interface ProductOption {
@@ -49,9 +50,9 @@ const ParticularRow: React.FC<{
   setValue: UseFormSetValue<CashDeliveryNoteFormData>;
   getValues: UseFormGetValues<CashDeliveryNoteFormData>;
 }> = ({ index, productOptions, remove, isRemovable, control, setValue }) => {
-  const watchedItemId = useWatch({
+  const watcheditem_id = useWatch({
     control,
-    name: `particulars.${index}.itemId`,
+    name: `particulars.${index}.item_id`,
   });
   const watchedQty = useWatch({
     control,
@@ -63,18 +64,18 @@ const ParticularRow: React.FC<{
   });
 
   useEffect(() => {
-    if (!watchedItemId) {
+    if (!watcheditem_id) {
       // clear dependent fields when nothing selected
-      setValue(`particulars.${index}.itemName`, "");
+      setValue(`particulars.${index}.item_name`, "");
       setValue(`particulars.${index}.price`, 0);
       setValue(`particulars.${index}.total`, 0);
       return;
     }
 
-    const selected = productOptions.find((p) => p.value === watchedItemId);
+    const selected = productOptions.find((p) => p.value === watcheditem_id);
     if (!selected) return;
 
-    setValue(`particulars.${index}.itemName`, selected.label);
+    setValue(`particulars.${index}.item_name`, selected.label);
     setValue(`particulars.${index}.price`, selected.price);
     setValue(
       `particulars.${index}.total`,
@@ -92,7 +93,7 @@ const ParticularRow: React.FC<{
     const lineTotal = (selected.price + color) * qty;
     setValue(`particulars.${index}.total`, lineTotal);
   }, [
-    watchedItemId,
+    watcheditem_id,
     watchedQty,
     watchedColorPrice,
     productOptions,
@@ -106,7 +107,7 @@ const ParticularRow: React.FC<{
         <div className="space-y-1 col-span-2">
           <FormSelect
             control={control}
-            name={`particulars.${index}.itemId`}
+            name={`particulars.${index}.item_id`}
             label="Product"
             variant="searchable"
             placeholder="Select product..."
@@ -180,8 +181,8 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
       date: "",
       particulars: [
         {
-          itemId: "",
-          itemName: "",
+          item_id: "",
+          item_name: "",
           price: 0,
           quantity: 0,
           color_code: "",
@@ -189,7 +190,7 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
           total: 0,
         },
       ],
-      grandTotal: 0,
+      grand_total: 0,
     },
     mode: "onBlur",
   });
@@ -233,7 +234,7 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
   }, [watchedParticulars]);
 
   useEffect(() => {
-    setValue("grandTotal", grandTotal, {
+    setValue("grand_total", grandTotal, {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -241,7 +242,7 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
 
   // Form submission
   const onSubmit: SubmitHandler<CashDeliveryNoteFormData> = async (data) => {
-    await axioInstance.post("/deliveryNote/createDeliveryNote.php", data);
+    await deliveryNotesServices.createDeliveryNote(data);
     reset();
     router.push("/delivery-note");
   };
@@ -296,8 +297,8 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
               size="sm"
               onClick={() =>
                 append({
-                  itemId: "",
-                  itemName: "",
+                  item_id: "",
+                  item_name: "",
                   price: 0,
                   quantity: 0,
                   color_code: "",
@@ -318,7 +319,7 @@ export const CashDeliveryNote: React.FC<FormProps> = ({
           <div className="w-1/3 space-y-2">
             <FormInput
               control={control}
-              name="grandTotal"
+              name="grand_total"
               label="Grand Total"
               type="number"
               readOnly

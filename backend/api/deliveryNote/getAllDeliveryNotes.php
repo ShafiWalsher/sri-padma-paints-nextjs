@@ -10,4 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 // Retrieve all delivery notes
 $delivery_notes = GetAllA("SELECT * FROM delivery_notes WHERE del=0", $con);
 
+// Decode `items` JSON for each delivery note
+foreach ($delivery_notes as &$note) {
+    if (isset($note['items'])) {
+        $note['items'] = json_decode($note['items'], true);
+    }
+}
+
 respond(['success' => true, 'data' => $delivery_notes]);

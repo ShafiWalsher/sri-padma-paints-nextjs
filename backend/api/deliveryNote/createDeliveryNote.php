@@ -1,103 +1,87 @@
 <?php
 require_once '../cors.php';
 require_once '../connect-db.php';
+validate_bearer_token();
 
+/* Make every uncaught error return JSON */
+set_exception_handler(
+    fn(Throwable $e) =>
+    respond(['success' => false, 'error' => 'Server error: ' . $e->getMessage()], 500)
+);
+
+/* Allow only POST */
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond(['success' => false, 'message' => 'Invalid request method'], 405);
+    respond(['success' => false, 'error' => 'Only POST allowed'], 405);
 }
 
+/* Authenticated user */
+$user = getCurrentUser($con);
+if (!$user['success']) respond($user, $user['code']);
+$username = $user['data']['username'];
 
-// Get authenticated user
-$userResponse = getCurrentUser($con);
-if (!$userResponse['success']) {
-    respond($userResponse, $userResponse['code']);
-}
-$user = $userResponse['data'];
-$username = $user['username'];
-
-
-$input = get_json_input();
-
-// Check required fields
-if (empty($input['particulars']) || empty($input['date']) || empty($input['grandTotal'])) {
-    respond(['success' => false, 'message' => 'Missing required fields'], 400);
+/* Body + validation */
+$body = get_json_input();
+if (empty($body['particulars']) || empty($body['date']) || empty($body['grandTotal'])) {
+    respond(['success' => false, 'error' => 'Missing required fields'], 400);
 }
 
-$delivery_table = "delivery_notes";
+/* Customer balance */
+$custId = $body['custId'] ?? null;
+$oldBal = 0.0;
+if ($custId) {
+    $row = GetRow("SELECT balance FROM customers WHERE del=0 AND id={$custId}", $con);
+    if (!$row) respond(['success' => false, 'error' => 'Customer not found'], 404);
+    $oldBal = (float)$row['balance'];
+}
 
-// Fetch customer balance if applicable
-$balance = 0;
-$cust_id = isset($input['custId']) && !empty($input['custId']) ? $input['custId'] : null;
+/* Money math */
+$total  = (float)$body['grandTotal'];
+$paid   = (float)($body['paid'] ?? 0);
+$newBal = $oldBal + $total - $paid;
+if ($newBal < 0) {
+    respond(['success' => false, 'error' => 'Updated balance cannot be negative: ' . $newBal], 400);
+}
 
-if (!is_null($cust_id)) {
-    $customer = GetRow("SELECT balance FROM customers WHERE del=0 AND id={$cust_id}", $con);
-    if (!$customer) {
-        respond(['success' => false, 'message' => 'Customer not found'], 404);
+/* Items JSON */
+$items = $body['particulars'];
+
+/* Start transaction */
+$con->begin_transaction();
+try {
+    /* Insert delivery note */
+    $noteId = insert_data_id([
+        'cust_id'     => $custId ?: null,
+        'name'        => $body['name']   ?? null,
+        'mobile'      => $body['mobile'] ?? null,
+        'date'        => $body['date'],
+        'items'       => json_encode($items),
+        'total_amount' => $total,
+        'old_balance' => $oldBal,
+        'grand_total' => $oldBal + $total,
+        'paid'        => $paid,
+        'balance'     => $newBal,
+        'status'      => $body['status'] ?? 'pending',
+        'del'         => 0,
+        'created_by'  => $username,
+        'created_at'  => date('Y-m-d H:i:s'),
+        'updated_at'  => date('Y-m-d H:i:s'),
+    ], 'delivery_notes', $con);
+
+    if (!$noteId) throw new Exception('Failed to create delivery note');
+
+    /* Update customer balance if credit customer */
+    if ($custId) {
+        $ok = Execute("UPDATE customers SET balance={$newBal} WHERE id={$custId}", $con);
+        if (!$ok) throw new Exception('Failed to update customer balance');
     }
-    $balance = floatval($customer['balance']);
+
+    $con->commit();
+    respond([
+        'success' => true,
+        'message' => 'Delivery note created successfully',
+        'data'   => ['id' => $noteId],
+    ], 201);
+} catch (Throwable $e) {
+    $con->rollback();
+    throw $e;  // global handler converts to JSON
 }
-
-$total_amount = floatval($input['grandTotal']);
-$paid = floatval($input['paid'] ?? 0);
-
-// Calculate new balance
-$new_balance = $balance + $total_amount - $paid;
-
-if ($new_balance < 0) {
-    respond(['success' => false, 'message' => 'Updated balance cannot be negative: ' . $new_balance], 400);
-}
-
-// Prepare items data as JSON
-$items = $input['particulars'];
-$items_data = [];
-foreach ($items as $item) {
-    $items_data[] = [
-        "item_id" => $item['itemId'],
-        "item_name" => $item['itemName'],
-        "item_price" => floatval($item['price']),
-        "item_quantity" => floatval($item['quantity']),
-        "total" => floatval($item['total'])
-    ];
-}
-
-// Prepare delivery note data
-$delivery_data = [
-    "cust_id" => $cust_id,
-    "name" => $input['name'] ?? null,
-    "mobile" => $input['mobile'] ?? null,
-    "date" => $input['date'],
-    "items" => json_encode($items_data),
-    "total_amount" => $total_amount,
-    "old_balance" => $balance,
-    "grand_total" => $balance + $total_amount,
-    "paid" => $paid,
-    "balance" => $new_balance,
-    "status" => $input['status'] ?? 'pending',
-    "del" => 0,
-    "created_by" => $username,
-    "created_at" => date('Y-m-d H:i:s'),
-    "updated_at" => date('Y-m-d H:i:s'),
-];
-
-// Insert delivery note
-$delivery_id = insert_data_id($delivery_data, $delivery_table, $con);
-
-if (!$delivery_id) {
-    respond(['success' => false, 'message' => 'Failed to create delivery note'], 500);
-}
-
-// Update customer balance if credit customer
-if (!is_null($cust_id)) {
-    $result = Execute("UPDATE customers SET balance={$new_balance} WHERE id={$cust_id}", $con);
-    if (!$result) {
-        Execute("DELETE FROM {$delivery_table} WHERE id={$delivery_id}", $con);
-        respond(['success' => false, 'message' => 'Failed to update customer balance'], 500);
-    }
-}
-
-
-// Send success response
-respond([
-    'success' => true,
-    'message' => 'Delivery note created successfully'
-]);

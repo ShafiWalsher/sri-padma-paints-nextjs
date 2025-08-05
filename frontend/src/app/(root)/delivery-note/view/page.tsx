@@ -19,6 +19,8 @@ export default function DeliveryNoteViewPage() {
 
   if (!note) return;
 
+  console.log(note);
+
   const items =
     typeof note.items === "string" ? JSON.parse(note.items) : note.items || [];
 
@@ -103,22 +105,22 @@ export default function DeliveryNoteViewPage() {
             ) : (
               <div className="space-y-3">
                 {items.map((item: any, index: number) => (
-                  <div key={index} className="flex items-end gap-2">
+                  <div key={index} className="flex items-end gap-1">
                     <div className="w-10 text-center">
                       <p className="text-xl font-semibold">{index + 1}.</p>
                     </div>
                     <div className="w-full flex justify-between border border-border/20 p-3 rounded-lg bg-gray-50 text-sm space-y-2">
                       <div className="space-y-2">
-                        <p>Name: {item.item_name}</p>
+                        <p className="font-medium text-md">{item.item_name}</p>
                         <div className="flex gap-6">
                           {item.color_code && (
                             <p>Color Code: {item.color_code}</p>
                           )}
-                          <p>Quantity: {item.item_quantity}</p>
+                          <p>Quantity: {item.quantity}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p>Price: ₹{item.item_price}</p>
+                        <p>Price: ₹{item.price}</p>
                         {item.color_price && (
                           <p>Color Price: ₹{item.color_price}</p>
                         )}

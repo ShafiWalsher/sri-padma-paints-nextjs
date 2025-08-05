@@ -4,18 +4,18 @@ require_once '../connect-db.php';
 validate_bearer_token();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    respond(['error' => 'Invalid request method'], 405);
+    respond(['success' => false, 'error' => 'Invalid request method'], 405);
 }
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    respond(['error' => 'Missing or invalid user ID'], 400);
+    respond(['success' => false, 'error' => 'Missing or invalid user ID'], 400);
 }
 
 $id = (int) $_GET['id'];
 $user = GetRow("SELECT * FROM customers WHERE id = $id", $con);
 
 if ($user) {
-    respond(['user' => $user]);
+    respond(['success' => true, 'data' => $user]);
 } else {
-    respond(['error' => 'User not found'], 404);
+    respond(['success' => false, 'error' => 'User not found'], 404);
 }
