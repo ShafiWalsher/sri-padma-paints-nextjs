@@ -303,6 +303,7 @@ export const CreditDeliveryNote: React.FC<FormProps> = ({
   // Form submission
   const onSubmit: SubmitHandler<CreditDeliveryNoteFormData> = async (data) => {
     await deliveryNotesServices.createDeliveryNote(data);
+    reset();
     router.replace("/delivery-note");
     router.refresh();
   };

@@ -1,0 +1,37 @@
+# -----------------------------------
+# 🛡️ SECURITY: Block sensitive files
+# -----------------------------------
+<FilesMatch "^\.env.*">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+<FilesMatch "(^composer\.(json|lock)|\.git|\.svn|\.htaccess)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# Block access to hidden files (e.g., .gitignore)
+RedirectMatch 403 /\..*$
+
+# -----------------------------------
+# ⚡ PERFORMANCE: Enable compression
+# -----------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# -----------------------------------
+# 📦 PERFORMANCE: Cache static assets
+# -----------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/gif "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType application/json "access plus 1 hour"
+  ExpiresByType text/html "access plus 1 minute"
+</IfModule>

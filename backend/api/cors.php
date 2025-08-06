@@ -1,11 +1,26 @@
 <?php
+
 declare(strict_types=1);
 
-// Set CORS headers before any output
-header('Access-Control-Allow-Origin: http://localhost:3000'); 
-header('Access-Control-Allow-Credentials: true');
+// List of trusted origins
+$allowedOrigins = [
+    'https://shree-padma-paints.mangaikumagazine.com',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+];
+
+// Get request origin
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+// Check if origin is allowed
+if (in_array($origin, $allowedOrigins, true)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header('Access-Control-Allow-Credentials: true');
+}
+
+// Always set these regardless of origin
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization'); 
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Content-Type: application/json; charset=utf-8');
 
 // Handle preflight OPTIONS request

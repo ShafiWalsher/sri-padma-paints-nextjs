@@ -38,11 +38,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(response.data.data);
       } else {
         setUser(null);
-        router.replace("/login");
       }
     } catch {
       setUser(null);
-      router.replace("/login");
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +59,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (userData: User) => {
     setUser(userData);
-    router.replace("/");
+    // Redirect based on role
+    switch (userData.role) {
+      case "admin":
+        router.replace("/");
+        break;
+      case "employee":
+        router.replace("/customers");
+        break;
+      case "manager":
+        router.replace("/customers");
+        break;
+      default:
+        router.replace("/");
+    }
   };
 
   const logout = async () => {

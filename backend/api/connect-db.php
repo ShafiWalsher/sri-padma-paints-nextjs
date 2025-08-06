@@ -5,13 +5,40 @@ require_once __DIR__ . '/../vendor/autoload.php'; // Composer autoloader
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
+
+use Dotenv\Dotenv;
+
+// Detect current environment
+$env = getenv('APP_ENV') ?: 'production';
+
+// Load the corresponding .env file
+$dotenvFile = ".env.$env";
+if (file_exists(__DIR__ . "/$dotenvFile")) {
+    $dotenv = Dotenv::createImmutable(__DIR__, $dotenvFile);
+    $dotenv->load();
+} else {
+    die("Environment file $dotenvFile not found.");
+}
+
+
 /**
  * Database configuration
  */
-$server = 'localhost';
-$user   = 'root';
-$pass   =  '';
-$dbname = 'sri_padma_paints';
+$server = $_ENV['DB_SERVER'] ?? 'localhost';
+$user   = $_ENV['DB_USER'] ?? 'root';
+$pass   = $_ENV['DB_PASS'] ?? '';
+$dbname = $_ENV['DB_NAME'] ?? '';
+
+
+// $server = 'localhost';
+// $user   = 'root';
+// $pass   =  '';
+// $dbname = 'sri_padma_paints';
+
+// $server = 'localhost';
+// $user   = 'u204927166_padma_paints';
+// $pass   =  '8>leHJb1R';
+// $dbname = 'u204927166_padma_paints';
 
 // Default Time Zone
 date_default_timezone_set("Asia/Kolkata");

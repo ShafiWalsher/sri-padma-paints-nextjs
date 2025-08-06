@@ -11,7 +11,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -19,17 +19,16 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
       if (!isAuthenticated) {
         router.replace("/login");
       } else if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-        router.replace("/unauthorized");
+        (async () => {
+          await logout();
+          router.replace("/login");
+        })();
       }
     }
-  }, [isLoading, isAuthenticated, user, allowedRoles, router]);
+  }, [isLoading, isAuthenticated, user, allowedRoles, router, logout]);
 
   if (isLoading || !isAuthenticated) {
     return <FullPageSpinner />;
-  }
-
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <p>Unauthorized</p>;
   }
 
   return <>{children}</>;
