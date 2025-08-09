@@ -34,7 +34,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         .find((c) => c.startsWith("sidebar_state="))
         ?.split("=")[1] === "true";
 
-    setOpen(isOpen);
+    if (!isOpen) {
+      setOpen(true);
+    }
+
+    document.cookie = "sidebar_state=true; path=/; max-age=31536000";
   }, [setOpen]);
   return (
     <Sidebar
