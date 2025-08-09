@@ -54,7 +54,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     checkAuthStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const login = (userData: User) => {
