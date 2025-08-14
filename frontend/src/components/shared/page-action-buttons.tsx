@@ -30,7 +30,7 @@ interface PageActionsComponentProps {
 }
 
 const colorClasses: Record<AllowedColors, string> = {
-  primary: "bg-primaty text-white hover:bg-primary/90",
+  primary: "bg-primary text-white hover:bg-primary/90",
   secondary: "bg-black/70 text-white hover:bg-black/60",
   destructive: "bg-rose-700 text-white hover:bg-rose-700/90",
   success: "bg-green-700/80 text-white hover:bg-green-700/70",

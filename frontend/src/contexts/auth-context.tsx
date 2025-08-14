@@ -38,21 +38,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(response.data.data);
       } else {
         setUser(null);
+        router.replace("/login");
       }
     } catch {
       setUser(null);
+      router.replace("/login");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    // Only check auth status on non-public pages
-    if (PUBLIC_PATHS.includes(pathname)) {
-      setIsLoading(false);
-      setUser(null);
-      return;
-    }
     checkAuthStatus();
   }, [pathname]);
 

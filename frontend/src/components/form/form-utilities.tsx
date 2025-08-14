@@ -623,8 +623,8 @@ export function FormDatePicker<
                   showOutsideDays
                   autoFocus
                   classNames={{
-                    today: `border-black border-1 rounded-sm`, // Add a border to today's date
-                    selected: `rounded-sm`, // Highlight the selected day
+                    today: `border-black border-[1px] !rounded-lg`, // Add a border to today's date
+                    selected: `!rounded-lg`, // Highlight the selected day
                     root: `${defaultClassNames.root} shadow-lg p-5`, // Add a shadow to the root element
                     day_button: `hover:bg-black/10 data-[selected-single=true]:!bg-black data-[selected-single=true]:!text-white`,
                     day: `border-0 shadow-0`,

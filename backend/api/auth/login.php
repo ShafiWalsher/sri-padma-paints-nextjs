@@ -5,7 +5,6 @@ require_once  '../config.php';        // JWT configuration
 
 validate_bearer_token();
 
-
 // Include required files
 require_once __DIR__ . '/../../vendor/autoload.php'; // Composer autoloader
 
@@ -27,43 +26,46 @@ if (!$user || !password_verify($password, $user['password_hash'])) {
     respond(['success' => false, 'error' => 'Invalid credentials.'], 401);
 }
 
+try {
+    // --- User is authenticated, create JWT ---
+    $issuedAt = time();
+    $expirationTime = $issuedAt + JWT_EXPIRATION_TIME;
 
-// --- User is authenticated, create JWT ---
-$issuedAt = time();
-$expirationTime = $issuedAt + JWT_EXPIRATION_TIME;
+    $payload = [
+        'iss' => JWT_ISSUER,
+        'aud' => JWT_AUDIENCE,
+        'iat' => $issuedAt,
+        'exp' => $expirationTime,
+        'sub' => $user['id'], // Subject of the token (user ID)
+        'username' => $user['username'],
+        'role' => $user['role'],
+    ];
 
-$payload = [
-    'iss' => JWT_ISSUER,
-    'aud' => JWT_AUDIENCE,
-    'iat' => $issuedAt,
-    'exp' => $expirationTime,
-    'sub' => $user['id'], // Subject of the token (user ID)
-    'username' => $user['username'],
-    'role' => $user['role'],
-];
+    $jwt = JWT::encode($payload, JWT_SECRET_KEY, 'HS256');
 
-$jwt = JWT::encode($payload, JWT_SECRET_KEY, 'HS256');
+    // Set the JWT in a secure, HTTP-only cookie
+    setcookie('jwt_token', $jwt, [
+        'expires' => $expirationTime,
+        'path' => '/',
+        'domain' => $_ENV['APP_ENV'] === 'production' ? $_SERVER['HTTP_HOST'] : '', // Set your domain in production
+        'secure' => $_ENV['APP_ENV'] === 'production' ? true : false, // Set to TRUE in production (HTTPS)
+        'httponly' => true,
+        'samesite' => $_ENV['APP_ENV'] === 'production' ? 'Strict' : 'Lax' // Or 'Lax'
+    ]);
 
-// Set the JWT in a secure, HTTP-only cookie
-setcookie('jwt_token', $jwt, [
-    'expires' => $expirationTime,
-    'path' => '/',
-    'domain' => '', // Set your domain in production
-    'secure' => false, // Set to TRUE in production (HTTPS)
-    'httponly' => true,
-    'samesite' => 'Lax' // Or 'Strict'
-]);
+    // Prepare user data for the response (do NOT include password hash)
+    $responseData = [
+        'id' => (int) $user['id'],
+        'username' => $user['username'],
+        'role' => $user['role']
+    ];
 
-// Prepare user data for the response (do NOT include password hash)
-$responseData = [
-    'id' => (int) $user['id'],
-    'username' => $user['username'],
-    'role' => $user['role']
-];
-
-// Send success response as per our frontend requirements
-respond([
-    'success' => true,
-    'data' => $responseData,
-    'message' => 'Login successful!'
-]);
+    // Send success response as per our frontend requirements
+    respond([
+        'success' => true,
+        'data' => $responseData,
+        'message' => 'Login successful!'
+    ]);
+} catch (Throwable $e) {
+    throw $e;
+}

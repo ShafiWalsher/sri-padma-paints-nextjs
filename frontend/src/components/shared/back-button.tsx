@@ -5,14 +5,14 @@ import { ChevronLeft } from "lucide-react";
 
 interface BackButtonProps {
   fallbackPath?: string;
-  overrridePath?: string;
+  overridePath?: string;
   label?: string;
 }
 
 export default function BackButton({
   fallbackPath = "/",
   label = "Back",
-  overrridePath,
+  overridePath: overrridePath,
 }: BackButtonProps) {
   const handleBack = () => {
     if (overrridePath) {
@@ -31,7 +31,7 @@ export default function BackButton({
       variant="ghost"
       size="sm"
       onClick={handleBack}
-      className="gap-2 h-10 w-10 hover:cursor-pointer hover:bg-background-hover border-[1px] border-border-muted rounded-custom"
+      className="gap-2 h-10 w-10 hover:cursor-pointer hover:bg-gray-50 border-[1px] border-gray-300 rounded-xl"
     >
       <ChevronLeft className="h-6 w-6" />
       <span className="sr-only">{label}</span>

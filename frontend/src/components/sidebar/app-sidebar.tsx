@@ -28,18 +28,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const isOpen =
-      document.cookie
-        .split("; ")
-        .find((c) => c.startsWith("sidebar_state="))
-        ?.split("=")[1] === "true";
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((c) => c.startsWith("sidebar_state="))
+      ?.split("=")[1];
 
-    if (!isOpen) {
-      setOpen(true);
+    const isOpen = cookieValue ? cookieValue === "true" : true; // Default to true (open)
+    setOpen(isOpen);
+
+    // Set cookie if it doesn't exist
+    if (!cookieValue) {
+      document.cookie = "sidebar_state=true; path=/; max-age=31536000"; // Expires in 1 year
     }
 
-    document.cookie = "sidebar_state=true; path=/; max-age=31536000";
-  }, [setOpen]);
+    // Update cookie whenever the sidebar state changes
+    document.cookie = `sidebar_state=${open}; path=/; max-age=31536000`;
+  }, [setOpen, open]);
+
   return (
     <Sidebar
       collapsible="icon"

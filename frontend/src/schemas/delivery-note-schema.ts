@@ -1,109 +1,46 @@
 import { z } from "zod";
 
-/* ───────────────── CREDIT Delivery-Note schema ────────────────── */
-export const CreditDeliveryNoteSchema = z
+// Particular item schema
+const ParticularSchema = z.object({
+  item_id: z.number().nullable(),
+  item_name: z.string().min(1, "Product name is required"),
+  quantity: z.number().nonnegative("Quantity must be positive"),
+  price: z.number().nonnegative("Price must be positive"),
+  color_code: z.string().optional(),
+  color_price: z.number().nonnegative().optional(),
+  total: z.number().positive("Total must be positive"),
+});
+
+// Base delivery note fields
+export const DeliveryNoteSchema = z
   .object({
-    cust_id: z.number().nullable().optional(),
-    name: z.string().min(1, "Customer Name is required"),
+    type: z.enum(["cash", "credit"]),
+    cust_id: z.number().nullable(),
+    account_id: z.number().nullable(),
+    name: z.string().min(1, "Customer name is required"),
     mobile: z
       .string()
-      .regex(/^\d{10}$/, { message: "Mobile must be 10 digits" })
+      .regex(/^\d{10}$/, { message: "Mobile number must be exactly 10 digits" })
       .optional()
       .or(z.literal("")),
     date: z.string().min(1, "Date is required"),
-    particulars: z
-      .array(
-        z
-          .object({
-            item_id: z.number().nullable(),
-            item_name: z.string().min(1, "Item Name is required"),
-            price: z.number().positive("Price must be a number"),
-            quantity: z.number().positive("Quantity must be a number"),
-            color_code: z.string().optional(),
-            color_price: z.number().nonnegative().optional(),
-            total: z.number().positive("Total must be a number"),
-          })
-          .strict()
-      )
-      .superRefine((items, ctx) => {
-        items.forEach((it, idx) => {
-          if (it.color_code && it.color_price === undefined) {
-            ctx.addIssue({
-              path: [idx, "color_price"],
-              code: "custom",
-              message: "Provide price when color code is entered",
-            });
-          }
-        });
-      })
-      .min(1, "At least one particular is required"),
-    grand_total: z.number().nonnegative("Grand Total must be a number"),
-    paid: z.number().nonnegative("Paid Amount must be a number"),
-    old_balance: z.number().nonnegative("Old Balance must be a number"),
-    balance: z.number().nonnegative("Balance Amount must be a number"),
+    items: z.array(ParticularSchema).min(1, "At least one item required"),
+    subtotal: z.number().nonnegative(),
+    discount_percent: z.number().min(0).max(20),
+    discount_amount: z.number().nonnegative(),
+    total_amount: z.number().nonnegative(),
   })
   .refine(
     (data) => {
-      if (!data.cust_id) return true; // skip validation if no customer selected
-      return /^\d{10}$/.test(data.mobile || "");
+      if (data.type === "credit") {
+        return data.cust_id !== null && data.account_id !== null;
+      }
+      return true;
     },
     {
-      path: ["mobile"],
-      message: "Mobile must be 10 digits",
+      message: "Customer and Account are required for credit delivery notes",
+      path: ["account_id"],
     }
-  )
-  .superRefine((data, ctx) => {
-    const calcBalance = data.old_balance + data.grand_total - data.paid;
-    if (data.balance !== calcBalance) {
-      ctx.addIssue({
-        path: ["balance"],
-        code: "custom",
-        message: `Balance must be old balance + grand total - paid = ${calcBalance}`,
-      });
-    }
-  });
+  );
 
-/* Inferred type for the form */
-export type CreditDeliveryNoteFormData = z.infer<
-  typeof CreditDeliveryNoteSchema
->;
-
-/* ───────────────── CASH Delivery-Note schema ────────────────── */
-export const CashDeliveryNoteSchema = z.object({
-  name: z.string().min(1, "Customer Name is required"),
-  mobile: z
-    .string()
-    .regex(/^\d{10}$/, { message: "Mobile must be 10 digits" })
-    .optional()
-    .or(z.literal("")),
-  date: z.string().min(1, "Date is required"),
-  particulars: z
-    .array(
-      z
-        .object({
-          item_id: z.number().nullable(),
-          item_name: z.string().min(1, "Item Name is required"),
-          price: z.number().positive("Price is required"),
-          quantity: z.number().positive("Quantity is required"),
-          color_code: z.string().optional(),
-          color_price: z.number().nonnegative().optional(),
-          total: z.number().positive("Total must be a number"),
-        })
-        .strict()
-    )
-    .superRefine((items, ctx) => {
-      items.forEach((it, idx) => {
-        if (it.color_code && it.color_price === undefined) {
-          ctx.addIssue({
-            path: [idx, "color_price"],
-            code: "custom",
-            message: "Provide price when color code is entered",
-          });
-        }
-      });
-    })
-    .min(1, "At least one particular is required"),
-  grand_total: z.number().nonnegative("Grand Total must be a number"),
-});
-
-export type CashDeliveryNoteFormData = z.infer<typeof CashDeliveryNoteSchema>;
+export type DeliveryNoteFormData = z.infer<typeof DeliveryNoteSchema>;

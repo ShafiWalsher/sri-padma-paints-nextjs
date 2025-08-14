@@ -9,7 +9,9 @@ use Firebase\JWT\Key;
 use Dotenv\Dotenv;
 
 // Detect current environment
-$env = getenv('APP_ENV') ?: 'production';
+$env = getenv('APP_ENV') ?: (
+    php_sapi_name() === 'cli-server' ? 'development' : 'production'
+);
 
 // Load the corresponding .env file
 $dotenvFile = ".env.$env";

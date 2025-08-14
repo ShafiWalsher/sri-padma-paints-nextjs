@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { NewCustomerForm } from "../_components/new-customer-form";
+import { CustomerForm } from "../_components/customer-form";
 import BackButton from "@/components/shared/back-button";
 
 const NewCustomerPage = () => {
@@ -16,7 +16,7 @@ const NewCustomerPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <NewCustomerForm />
+          <CustomerForm action="CREATE" />
         </CardContent>
       </Card>
     </>

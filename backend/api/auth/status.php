@@ -31,8 +31,7 @@ try {
 
     // Respond with success and user data
     respond(['success' => true, 'data' => $userData]);
-
 } catch (Exception $e) {
-    // Handles expired, invalid signature, etc.
-    respond(['success' => false, 'error' => 'Invalid or expired session.'], 401);
+    $con->rollback();
+    throw $e;
 }

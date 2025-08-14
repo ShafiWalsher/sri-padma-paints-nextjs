@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function useColumns(): ColumnDef<DeliveryNote>[] {
+export function useDNColumns(): ColumnDef<DeliveryNote>[] {
   const router = useRouter();
 
   return [
@@ -35,22 +35,36 @@ export function useColumns(): ColumnDef<DeliveryNote>[] {
       },
     },
     {
-      id: "name",
-      accessorKey: "name",
+      id: "note_number",
+      accessorKey: "note_number",
       header: ({ column }) => (
         <p
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="flex items-center cursor-pointer justify-center"
         >
-          <span>Name</span>
+          <span>Note Number</span>
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </p>
       ),
       size: 300,
     },
     {
-      id: "mobile",
-      accessorKey: "mobile",
+      id: "customer_name",
+      accessorKey: "customer_name",
+      header: ({ column }) => (
+        <p
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center cursor-pointer justify-center"
+        >
+          <span>Customer</span>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </p>
+      ),
+      size: 60,
+    },
+    {
+      id: "customer_mobile",
+      accessorKey: "customer_mobile",
       header: ({ column }) => (
         <p
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -68,6 +82,25 @@ export function useColumns(): ColumnDef<DeliveryNote>[] {
       header: "Date",
     },
     {
+      id: "payment_type",
+      accessorKey: "payment_type",
+      header: ({ column }) => (
+        <p
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center cursor-pointer justify-center"
+        >
+          <span>Type</span>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </p>
+      ),
+      cell: ({ row }) => (
+        <p className="text-center">
+          {row.original.payment_type.charAt(0).toUpperCase() +
+            row.original.payment_type.slice(1)}
+        </p>
+      ),
+    },
+    {
       id: "total_amount",
       accessorKey: "total_amount",
       header: "Total",
@@ -75,54 +108,6 @@ export function useColumns(): ColumnDef<DeliveryNote>[] {
         <p className="text-right">
           {row.original.total_amount != null
             ? Number(row.original.total_amount).toFixed(2)
-            : "—"}
-        </p>
-      ),
-    },
-    {
-      id: "old_balance",
-      accessorKey: "old_balance",
-      header: "Old Bal",
-      cell: ({ row }) => (
-        <p className="text-right">
-          {row.original.old_balance != null
-            ? Number(row.original.old_balance).toFixed(2)
-            : "—"}
-        </p>
-      ),
-    },
-    {
-      id: "grand_total",
-      accessorKey: "grand_total",
-      header: "Grand Total",
-      cell: ({ row }) => (
-        <p className="text-right">
-          {row.original.grand_total != null
-            ? Number(row.original.grand_total).toFixed(2)
-            : "—"}
-        </p>
-      ),
-    },
-    {
-      id: "paid",
-      accessorKey: "paid",
-      header: "Paid",
-      cell: ({ row }) => (
-        <p className="text-right">
-          {row.original.paid != null
-            ? Number(row.original.paid).toFixed(2)
-            : "—"}
-        </p>
-      ),
-    },
-    {
-      id: "balance",
-      accessorKey: "balance",
-      header: "Balance",
-      cell: ({ row }) => (
-        <p className="text-right">
-          {row.original.balance != null
-            ? Number(row.original.balance).toFixed(2)
             : "—"}
         </p>
       ),
@@ -157,24 +142,6 @@ export function useColumns(): ColumnDef<DeliveryNote>[] {
           </div>
         );
       },
-    },
-    {
-      id: "created_by",
-      accessorKey: "created_by",
-      header: "Created By",
-      cell: ({ row }) => <span>{row.original.created_by || "—"}</span>,
-    },
-    {
-      id: "created_at",
-      accessorKey: "created_at",
-      header: "Created At",
-      cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">
-          {row.original.created_at
-            ? new Date(row.original.created_at).toLocaleString()
-            : "—"}
-        </span>
-      ),
     },
     {
       id: "actions",

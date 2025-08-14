@@ -3,7 +3,7 @@ import { Product } from "@/types/product";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
-export function useColumns(): ColumnDef<Product>[] {
+export function useProductColumns(): ColumnDef<Product>[] {
   return [
     {
       id: "sl_no",
@@ -31,8 +31,8 @@ export function useColumns(): ColumnDef<Product>[] {
       ),
     },
     {
-      id: "name",
-      accessorKey: "name",
+      id: "product_name",
+      accessorKey: "product_name",
       header: ({ column }) => (
         <p
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}

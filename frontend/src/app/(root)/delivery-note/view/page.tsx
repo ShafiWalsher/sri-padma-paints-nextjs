@@ -19,8 +19,6 @@ export default function DeliveryNoteViewPage() {
 
   if (!note) return;
 
-  console.log(note);
-
   const items =
     typeof note.items === "string" ? JSON.parse(note.items) : note.items || [];
 

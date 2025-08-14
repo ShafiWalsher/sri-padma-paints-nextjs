@@ -2,22 +2,22 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/shared/data-table";
-import { useColumns } from "../delvert-note-columns";
+import { useDNColumns } from "../delvert-note-columns";
 import { deliveryNotesServices } from "@/services/delivery-notes-service";
 
 export default function DeliveryNotesTable() {
   const { data } = useSuspenseQuery({
     queryKey: ["deliveryNotes"],
-    queryFn: deliveryNotesServices.fetchDeliveryNotes,
+    queryFn: deliveryNotesServices.getDeliveryNotes,
   });
 
-  const columns = useColumns();
+  const columns = useDNColumns();
 
   return (
     <DataTable
       columns={columns}
       data={data || []}
-      searchableItems={["name", "mobile"]}
+      searchableItems={["customer_name", "customer_mobile"]}
       searchPlaceHolder="Search for a user or mobile"
       initialPageSize={50}
     />

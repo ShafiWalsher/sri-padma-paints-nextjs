@@ -5,12 +5,16 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/contexts/auth-context";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AuthLoader } from "@/components/auth/auth-loader";
+import { ConfirmDialogProvider } from "@/contexts/confirm-dialog-context";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 60 * 1_000,
+        gcTime: 10 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        retry: 1,
       },
     },
   });
@@ -21,7 +25,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <SidebarProvider>
-            <AuthLoader>{children}</AuthLoader>
+            <AuthLoader>
+              <ConfirmDialogProvider>{children}</ConfirmDialogProvider>
+            </AuthLoader>
           </SidebarProvider>
         </QueryClientProvider>
       </AuthProvider>

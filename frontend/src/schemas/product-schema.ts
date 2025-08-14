@@ -4,7 +4,7 @@ import { z } from "zod";
 export const productSchema = z.object({
   vendor_id: z.string(),
   vendor_name: z.string().optional(),
-  name: z.string().min(1, "Product name is required"),
+  product_name: z.string().min(1, "Product name is required"),
   color: z.string().min(1, "Color is required"),
   item_price: z.number().min(0, "Item price must be non-negative"),
   quantity: z.number().min(0, "Quantity must be non-negative"),

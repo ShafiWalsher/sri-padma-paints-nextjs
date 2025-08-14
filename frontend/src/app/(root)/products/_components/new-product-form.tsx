@@ -68,7 +68,7 @@ const ProductRow: React.FC<ProductRowProps> = ({
         />
         <FormInput
           control={control}
-          name={`products.${index}.name`}
+          name={`products.${index}.product_name`}
           label="Product Name"
           placeholder="Enter product name"
           inputClassName="bg-white"
@@ -127,7 +127,7 @@ export const NewProductForm: React.FC = () => {
       products: [
         {
           vendor_id: "",
-          name: "",
+          product_name: "",
           color: "",
           package: "",
           item_price: 0,
@@ -155,7 +155,7 @@ export const NewProductForm: React.FC = () => {
     const loadVendors = async () => {
       const productData = await vendorServices.fetchVendors();
       const products = productData.map((item: any) => ({
-        value: item.id,
+        value: String(item.id),
         label: item.vendor_name,
       }));
       setVendorOptions(products);
@@ -194,7 +194,7 @@ export const NewProductForm: React.FC = () => {
             onClick={() =>
               append({
                 vendor_id: "",
-                name: "",
+                product_name: "",
                 color: "",
                 package: "",
                 item_price: 0,

@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $sql = "SELECT
             p.id,
             v.vendor_name,         
-            p.name,
+            p.product_name,
             p.color,
             p.package,
             p.item_price,

@@ -3,29 +3,21 @@ import { ProductFormData } from "@/schemas/product-schema";
 import { Product } from "@/types/product";
 
 async function createProduct(payload: ProductFormData) {
-  const response = await axioInstance.post(
+  const { data: response } = await axioInstance.post(
     "/products/createProduct.php",
     payload
   );
   return response.data;
 }
 
-async function fetchProducts(): Promise<Product[]> {
-  try {
-    const response = await axioInstance.get<{
-      success: boolean;
-      data: Product[];
-    }>("/products/getAllProducts.php");
-    if (response.data.success) {
-      return response.data.data;
-    }
-    throw new Error("Failed to load products");
-  } catch (error: any) {
-    throw new Error(error.message || "Failed to fetch products");
-  }
+async function getProducts(): Promise<Product[]> {
+  const { data: response } = await axioInstance.get(
+    "/products/getAllProducts.php"
+  );
+  return response.data;
 }
 
 export const productServices = {
   createProduct,
-  fetchProducts,
+  getProducts,
 };

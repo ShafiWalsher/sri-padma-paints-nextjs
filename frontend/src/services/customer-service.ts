@@ -1,31 +1,64 @@
 import axioInstance from "@/lib/axios";
 import { CustomerFormData } from "@/schemas/customer-schema";
-import type { Customer } from "@/types/customer";
+import type { Customer, CustomerDetails } from "@/types/customer";
 
-async function fetchCustomers(): Promise<Customer[]> {
-  try {
-    const response = await axioInstance.get<{
-      success: boolean;
-      data: Customer[];
-    }>("/customer/getAllCustomers.php");
-    if (response.data.success) {
-      return response.data.data;
-    }
-    throw new Error("Failed to load customers");
-  } catch (error: any) {
-    throw new Error(error.message || "Failed to fetch customers");
-  }
+async function getCustomers(): Promise<Customer[]> {
+  const { data: response } = await axioInstance.get(
+    "/customers/getCustomers.php"
+  );
+  return response.data;
+}
+
+async function getCustomer(customerId: string): Promise<Customer> {
+  const { data: response } = await axioInstance.get(
+    `/customers/getCustomer.php?customer_id=${customerId}`
+  );
+  return response.data;
 }
 
 async function createCustomer(payload: CustomerFormData) {
-  const response = await axioInstance.post(
-    "/customer/createCustomer.php",
+  const { data: response } = await axioInstance.post(
+    "/customers/createCustomer.php",
     payload
   );
   return response.data;
 }
 
+async function updateCustomer(customerId: string, payload: CustomerFormData) {
+  const { data: response } = await axioInstance.post(
+    "/customers/updateCustomer.php",
+    {
+      customer_id: customerId,
+      ...payload,
+    }
+  );
+  return response.data;
+}
+
+async function getCustomerDetails(
+  customerId: string
+): Promise<CustomerDetails> {
+  const { data: response } = await axioInstance.get(
+    `/customers/getCustomerDetails.php?customer_id=${customerId}`
+  );
+  return response.data;
+}
+
+async function deleteCustomer(customerId: string) {
+  const { data: response } = await axioInstance.post(
+    "/customers/deleteCustomer.php",
+    {
+      customer_id: customerId,
+    }
+  );
+  return response.data;
+}
+
 export const customerServices = {
-  fetchCustomers,
+  getCustomers,
+  getCustomer,
   createCustomer,
+  getCustomerDetails,
+  updateCustomer,
+  deleteCustomer,
 };

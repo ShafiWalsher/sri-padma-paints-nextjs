@@ -10,19 +10,15 @@ export interface DeliveryNoteItem {
 
 export interface DeliveryNote {
   id: number;
-  cust_id: number | null;
-  name: string;
-  mobile: string;
+  customer_account_id: number;
+  customer_name: string;
+  customer_mobile: string;
   date: string;
-  items: DeliveryNoteItem[];
+  payment_type: string;
+  subtotal: number;
+  discount_percent: number;
+  discount_amount: number;
   total_amount: number;
-  old_balance: number;
-  grand_total: number;
-  paid: number;
-  balance: number;
   status: "pending" | "completed" | string;
-  del: number;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
+  items: DeliveryNoteItem[];
 }

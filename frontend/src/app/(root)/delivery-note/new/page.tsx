@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReceiptIndianRupee, Wallet } from "lucide-react";
-import { CashDeliveryNote } from "../_components/cash-delivery-note";
-import { CreditDeliveryNote } from "../_components/credit-delivery-note";
+import DeliveryNoteForm from "../_components/delivery-note-form";
 
 const AddDeliveryNotePage = () => {
   return (
@@ -26,13 +25,13 @@ const AddDeliveryNotePage = () => {
           <h2 className="mb-4">
             Add <span className="text-orange-600">Cash</span> Delivery Note
           </h2>
-          <CashDeliveryNote />
+          <DeliveryNoteForm type="cash" />
         </TabsContent>
         <TabsContent value="credit-delivery-note" className="mt-6">
           <h2 className="mb-4">
             Add <span className="text-orange-600">Credit</span> Delivery Note
           </h2>
-          <CreditDeliveryNote />
+          <DeliveryNoteForm type="credit" />
         </TabsContent>
       </Tabs>
     </div>

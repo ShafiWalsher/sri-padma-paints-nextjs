@@ -23,8 +23,6 @@ export default function DeliveryNotePrintPage() {
   const items =
     typeof note.items === "string" ? JSON.parse(note.items) : note.items || [];
 
-  console.log(items);
-
   return (
     <>
       <div className="mb-6 flex items-center gap-4">

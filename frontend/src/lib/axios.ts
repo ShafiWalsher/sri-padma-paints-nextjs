@@ -31,7 +31,6 @@ const axioInstance = axios.create({
 });
 
 // --- AXIOS INTERCEPTORS ---
-
 axioInstance.interceptors.request.use(
   (config) => {
     showLoader(); // Show the global loader
@@ -49,6 +48,7 @@ axioInstance.interceptors.request.use(
           config.url
         }`
       );
+      console.log("[Request Headers]", config.headers);
       if (config.data) {
         console.log(`[Payload]`, config.data);
       }

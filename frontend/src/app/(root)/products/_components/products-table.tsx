@@ -2,16 +2,16 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/shared/data-table";
-import { useColumns } from "../product-columns";
+import { useProductColumns } from "../product-columns";
 import { productServices } from "@/services/product-service";
 
 export default function ProductsTable() {
   const { data } = useSuspenseQuery({
     queryKey: ["products"],
-    queryFn: productServices.fetchProducts,
+    queryFn: productServices.getProducts,
   });
 
-  const columns = useColumns();
+  const columns = useProductColumns();
 
   return (
     <DataTable

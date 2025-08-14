@@ -10,11 +10,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Customer } from "@/types/customer";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Eye, MoreHorizontal, SquarePen } from "lucide-react";
+import {
+  ArrowUpDown,
+  Eye,
+  MoreHorizontal,
+  SquarePen,
+  Trash2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { customerServices } from "@/services/customer-service";
+import { useConfirmDialog } from "@/contexts/confirm-dialog-context";
+import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 
-export function useColumns(): ColumnDef<Customer>[] {
+export function useCustomerColumns(): ColumnDef<Customer>[] {
   const router = useRouter();
+  const confirm = useConfirmDialog();
+  const queryClient = useQueryClient();
 
   return useMemo(
     () => [
@@ -43,6 +55,14 @@ export function useColumns(): ColumnDef<Customer>[] {
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </p>
         ),
+        cell: ({ row }) => (
+          <Link
+            href={`customers/view?id=${row.original.id}`}
+            className="hover:underline text-blue-700 font-medium"
+          >
+            {row.original.name}
+          </Link>
+        ),
       },
       {
         id: "mobile",
@@ -64,18 +84,36 @@ export function useColumns(): ColumnDef<Customer>[] {
         header: "Address",
       },
       {
-        id: "balance",
-        accessorKey: "balance",
-        header: "Balance",
+        id: "main_account",
+        accessorKey: "default_account_name",
+        header: "Default Account",
         size: 60,
-        cell: ({ row }) => <p className="text-right">{row.original.balance}</p>,
+      },
+
+      {
+        id: "total_balance",
+        accessorKey: "total_balance",
+        header: "Total Bal.",
+        size: 60,
+        cell: ({ row }) => (
+          <p className="text-right">{row.original.total_balance}</p>
+        ),
+      },
+      {
+        id: "accounts_count",
+        accessorKey: "accounts_count",
+        header: "Accounts",
+        size: 60,
+        cell: ({ row }) => (
+          <p className="text-right">{row.original.accounts_count}</p>
+        ),
       },
       {
         id: "actions",
         header: "Actions",
         size: 40,
         cell: ({ row }) => {
-          const user = row.original;
+          const customer = row.original;
 
           return (
             <div className="flex justify-center">
@@ -92,17 +130,43 @@ export function useColumns(): ColumnDef<Customer>[] {
                 <DropdownMenuContent align="end" className="bg-white">
                   <DropdownMenuItem
                     className="hover:!bg-blue-200/40"
-                    onClick={() => router.push(`/customers/${user.id}`)}
+                    onClick={() =>
+                      router.push(`/customers/view?id=${customer.id}`)
+                    }
                   >
                     <Eye size={14} className="mr-2" />
                     View
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="hover:!bg-blue-200/40"
-                    onClick={() => router.push(`/customers/${user.id}/edit`)}
+                    onClick={() =>
+                      router.push(`/customers/new?id=${customer.id}`)
+                    }
                   >
                     <SquarePen size={14} className="mr-2" />
                     Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="hover:!bg-red-200/40 text-red-600"
+                    onClick={async () => {
+                      try {
+                        await confirm({
+                          title: "Delete Customer?",
+                          description: `Are you sure you want to delete ${customer.name}?`,
+                          confirmText: "Delete",
+                        });
+                      } catch {
+                        return;
+                      }
+                      await customerServices.deleteCustomer(customer.id);
+                      queryClient.invalidateQueries({
+                        queryKey: ["customers"],
+                      });
+                      router.refresh();
+                    }}
+                  >
+                    <Trash2 size={14} className="mr-2" />
+                    Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -111,6 +175,6 @@ export function useColumns(): ColumnDef<Customer>[] {
         },
       },
     ],
-    [router]
+    [router, confirm, queryClient]
   );
 }

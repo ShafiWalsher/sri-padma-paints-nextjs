@@ -13,10 +13,10 @@ if (!$user['success']) respond($user, $user['code']);
 $username = $user['data']['username'];
 
 $body     = get_json_input();
-$custId   = $body['custId']   ?? null;
+$custId   = $body['custId'] ?? null;
 $amount   = (float)($body['amount'] ?? 0);
-$noteIds  = $body['noteIds']  ?? [];
-$adminNote = $body['note']     ?? null;
+$noteIds  = $body['noteIds'] ?? [];
+$adminNote = $body['note'] ?? null;
 
 if (!$custId || $amount <= 0) {
     respond(['success' => false, 'error' => 'custId and positive amount required'], 400);

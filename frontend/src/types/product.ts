@@ -1,7 +1,7 @@
 export interface Product {
-  id: string;
+  id: number;
   vendor_name: string;
-  name: string;
+  product_name: string;
   color: number;
   package: string;
   item_price: string;
